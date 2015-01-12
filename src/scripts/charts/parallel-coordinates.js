@@ -72,17 +72,8 @@
       bounds[index] = Chartist.getBounds(that.svg, [normalizedDataTransposed[index]], options);
     });
 
-    var chartRect = Chartist.createChartRect(this.svg, options);
     // Start drawing
-    var labels = this.svg.elem('g').addClass(options.classNames.labelGroup),
-      grid = this.svg.elem('g').addClass(options.classNames.gridGroup);
-
-    Chartist.createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
-    bounds.forEach(function(value, index){
-      var width = chartRect.width() / that.data.labels.length,
-        posX = chartRect.x1 + width * index;
-      createYAxis(chartRect, bounds[index], grid, labels, options, that.eventEmitter, that.supportsForeignObject, posX);
-    });
+    var chartRect = Chartist.createChartRect(this.svg, options);
 
     //draw all series
     for(var r = 0; r < this.data.series.length; r++) {
@@ -120,6 +111,17 @@
         //Todo emitt event
       }
     }
+
+    //draw grid, axis and labels
+    var labels = this.svg.elem('g').addClass(options.classNames.labelGroup),
+      grid = this.svg.elem('g').addClass(options.classNames.gridGroup);
+
+    Chartist.createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
+    bounds.forEach(function(value, index){
+      var width = chartRect.width() / that.data.labels.length,
+        posX = chartRect.x1 + width * index;
+      createYAxis(chartRect, bounds[index], grid, labels, options, that.eventEmitter, that.supportsForeignObject, posX);
+    });
 
 //    // Draw the series
 //    // initialize series groups
