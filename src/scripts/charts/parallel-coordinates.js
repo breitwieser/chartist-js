@@ -132,14 +132,20 @@
           posY1 = Chartist.projectPoint(chartRect, bounds[lastDimensionIdx], normalizedData[r], lastDimensionIdx).y,
           posY2 = Chartist.projectPoint(chartRect, bounds[index], normalizedData[r], index).y;
 
-        var gridElement = seriesGroups[r].elem('line', {
+        var line = seriesGroups[r].elem('line', {
           x1: posX1,
           y1: posY1,
           x2: posX2,
           y2: posY2
         }, options.classNames.line);
 
-        //Todo emitt event
+        that.eventEmitter.emit('draw', {
+          type: 'line',
+          values: normalizedData[r],
+          index: r,
+          group: seriesGroups[r],
+          element: line
+        });
 
         lastDimensionIdx = index;
         displayedDimIdx ++;
@@ -163,129 +169,12 @@
       displayedDimIdx++;
     });
 
-//    // Draw the series
-//    // initialize series groups
-//    for (var i = 0; i < this.data.series.length; i++) {
-//      seriesGroups[i] = this.svg.elem('g');
-//
-//      // If the series is an object and contains a name we add a custom attribute
-//      if(this.data.series[i].name) {
-//        seriesGroups[i].attr({
-//          'series-name': this.data.series[i].name
-//        }, Chartist.xmlNs.uri);
-//      }
-//
-//      // Use series class from series data or if not set generate one
-//      seriesGroups[i].addClass([
-//        options.classNames.series,
-//        (this.data.series[i].className || options.classNames.series + '-' + Chartist.alphaNumerate(i))
-//      ].join(' '));
-//
-//      var p,
-//        pathCoordinates = [],
-//        point;
-//
-//      for (var j = 0; j < normalizedData[i].length; j++) {
-//        p = Chartist.projectPoint(chartRect, bounds, normalizedData[i], j);
-//        pathCoordinates.push(p.x, p.y);
-//
-//        //If we should show points we need to create them now to avoid secondary loop
-//        // Small offset for Firefox to render squares correctly
-//        if (options.showPoint) {
-//          point = seriesGroups[i].elem('line', {
-//            x1: p.x,
-//            y1: p.y,
-//            x2: p.x + 0.01,
-//            y2: p.y
-//          }, options.classNames.point).attr({
-//            'value': normalizedData[i][j]
-//          }, Chartist.xmlNs.uri);
-//
-//          this.eventEmitter.emit('draw', {
-//            type: 'point',
-//            value: normalizedData[i][j],
-//            index: j,
-//            group: seriesGroups[i],
-//            element: point,
-//            x: p.x,
-//            y: p.y
-//          });
-//        }
-//      }
-//
-//      // TODO: Nicer handling of conditions, maybe composition?
-//      if (options.showLine || options.showArea) {
-//        // TODO: We should add a path API in the SVG library for easier path creation
-//        var pathElements = ['M' + pathCoordinates[0] + ',' + pathCoordinates[1]];
-//
-//        // If smoothed path and path has more than two points then use catmull rom to bezier algorithm
-//        if (options.lineSmooth && pathCoordinates.length > 4) {
-//
-//          var cr = Chartist.catmullRom2bezier(pathCoordinates);
-//          for(var k = 0; k < cr.length; k++) {
-//            pathElements.push('C' + cr[k].join());
-//          }
-//        } else {
-//          for(var l = 3; l < pathCoordinates.length; l += 2) {
-//            pathElements.push('L' + pathCoordinates[l - 1] + ',' + pathCoordinates[l]);
-//          }
-//        }
-//
-//        if(options.showArea) {
-//          // If areaBase is outside the chart area (< low or > high) we need to set it respectively so that
-//          // the area is not drawn outside the chart area.
-//          var areaBase = Math.max(Math.min(options.areaBase, bounds.max), bounds.min);
-//
-//          // If we need to draw area shapes we just make a copy of our pathElements SVG path array
-//          var areaPathElements = pathElements.slice();
-//
-//          // We project the areaBase value into screen coordinates
-//          var areaBaseProjected = Chartist.projectPoint(chartRect, bounds, [areaBase], 0);
-//          // And splice our new area path array to add the missing path elements to close the area shape
-//          areaPathElements.splice(0, 0, 'M' + areaBaseProjected.x + ',' + areaBaseProjected.y);
-//          areaPathElements[1] = 'L' + pathCoordinates[0] + ',' + pathCoordinates[1];
-//          areaPathElements.push('L' + pathCoordinates[pathCoordinates.length - 2] + ',' + areaBaseProjected.y);
-//
-//          // Create the new path for the area shape with the area class from the options
-//          var area = seriesGroups[i].elem('path', {
-//            d: areaPathElements.join('')
-//          }, options.classNames.area, true).attr({
-//            'values': normalizedData[i]
-//          }, Chartist.xmlNs.uri);
-//
-//          this.eventEmitter.emit('draw', {
-//            type: 'area',
-//            values: normalizedData[i],
-//            index: i,
-//            group: seriesGroups[i],
-//            element: area
-//          });
-//        }
-//
-//        if(options.showLine) {
-//          var line = seriesGroups[i].elem('path', {
-//            d: pathElements.join('')
-//          }, options.classNames.line, true).attr({
-//            'values': normalizedData[i]
-//          }, Chartist.xmlNs.uri);
-//
-//          this.eventEmitter.emit('draw', {
-//            type: 'line',
-//            values: normalizedData[i],
-//            index: i,
-//            group: seriesGroups[i],
-//            element: line
-//          });
-//        }
-//      }
-//    }
-//
-//    this.eventEmitter.emit('created', {
-//      bounds: bounds,
-//      chartRect: chartRect,
-//      svg: this.svg,
-//      options: options
-//    });
+    this.eventEmitter.emit('created', {
+      bounds: bounds,
+      chartRect: chartRect,
+      svg: this.svg,
+      options: options
+    });
   }
 
   //TODO move this function into the core module
