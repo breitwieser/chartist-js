@@ -371,19 +371,34 @@ var Chartist = {
   Chartist.createChartRect = function (svg, options) {
     var yOffset = options.axisY ? options.axisY.offset : 0,
       xOffset = options.axisX ? options.axisX.offset : 0;
+    if(!options.rotate) {
+      return {
+        x1: options.chartPadding + yOffset,
+        y1: Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding),
+        x2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
+        y2: options.chartPadding,
+        width: function () {
+          return this.x2 - this.x1;
+        },
+        height: function () {
+          return this.y1 - this.y2;
+        }
+      };
+    } else {
+      return {
+        y1: options.chartPadding + yOffset,
+        x1: Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding),
+        y2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
+        x2: options.chartPadding,
+        width: function () {
+          return this.x2 - this.x1;
+        },
+        height: function () {
+          return this.y1 - this.y2;
+        }
+      };
+    }
 
-    return {
-      x1: options.chartPadding + yOffset,
-      y1: Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding),
-      x2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
-      y2: options.chartPadding,
-      width: function () {
-        return this.x2 - this.x1;
-      },
-      height: function () {
-        return this.y1 - this.y2;
-      }
-    };
   };
 
   /**
@@ -431,12 +446,22 @@ var Chartist = {
       }
 
       if (options.axisX.showGrid) {
-        var gridElement = grid.elem('line', {
-          x1: pos,
-          y1: chartRect.y1,
-          x2: pos,
-          y2: chartRect.y2
-        }, [options.classNames.grid, options.classNames.horizontal].join(' '));
+        if(!options.rotate) {
+          var gridElement = grid.elem('line', {
+            x1: pos,
+            y1: chartRect.y1,
+            x2: pos,
+            y2: chartRect.y2
+          }, [options.classNames.grid, options.classNames.horizontal].join(' '));
+        } else {
+          gridElement = grid.elem('line', {
+            x1: chartRect.y1,
+            y1: pos,
+            x2: chartRect.y2,
+            y2: pos
+          }, [options.classNames.grid, options.classNames.horizontal].join(' '));
+        }
+
 
         // Event for grid draw
         eventEmitter.emit('draw', {
@@ -458,13 +483,25 @@ var Chartist = {
           y: chartRect.y1 + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)
         };
 
-        var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
-          x: labelPosition.x,
-          y: labelPosition.y,
-          width: width,
-          height: height,
-          style: 'overflow: visible;'
-        }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+        if(!options.rotate) {
+          var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+            x: labelPosition.x,
+            y: labelPosition.y,
+            width: width,
+            height: height,
+            style: 'overflow: visible;'
+          }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+        }else {
+          console.log(chartRect.width());
+          labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+            x: labelPosition.y,
+            y: labelPosition.x,
+            width: Math.abs(width),
+            height: Math.abs(height),
+            style: 'overflow: visible;'
+          }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+        }
+
 
         eventEmitter.emit('draw', {
           type: 'label',
@@ -513,12 +550,22 @@ var Chartist = {
       }
 
       if (options.axisY.showGrid) {
-        var gridElement = grid.elem('line', {
-          x1: chartRect.x1,
-          y1: pos,
-          x2: chartRect.x2,
-          y2: pos
-        }, [options.classNames.grid, options.classNames.vertical].join(' '));
+        if(!options.rotate){
+          var gridElement = grid.elem('line', {
+            x1: chartRect.x1,
+            y1: pos,
+            x2: chartRect.x2,
+            y2: pos
+          }, [options.classNames.grid, options.classNames.vertical].join(' '));
+        } else {
+          var gridElement = grid.elem('line', {
+            x1: pos,
+            y1: chartRect.x1,
+            x2: pos,
+            y2: chartRect.x2
+          }, [options.classNames.grid, options.classNames.vertical].join(' '));
+        }
+
 
         // Event for grid draw
         eventEmitter.emit('draw', {
@@ -540,13 +587,25 @@ var Chartist = {
           y: pos + options.axisY.labelOffset.y + (supportsForeignObject ? -15 : 0)
         };
 
-        var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
-          x: labelPosition.x,
-          y: labelPosition.y,
-          width: width,
-          height: height,
-          style: 'overflow: visible;'
-        }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+        if(!options.rotate) {
+          var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+            x: labelPosition.x,
+            y: labelPosition.y,
+            width: width,
+            height: height,
+            style: 'overflow: visible;'
+          }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+        } else {
+          labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+            x: labelPosition.y,
+            y: labelPosition.x,
+            width: Math.abs(width),
+            height: Math.abs(height),
+            style: 'overflow: visible;'
+          }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+        }
+
+
 
         eventEmitter.emit('draw', {
           type: 'label',

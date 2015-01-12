@@ -15,7 +15,7 @@
 }(this, function () {
 
   /* Chartist.js 0.4.3
-   * Copyright © 2014 Gion Kunz
+   * Copyright © 2015 Gion Kunz
    * Free to use under the WTFPL license.
    * http://www.wtfpl.net/
    */
@@ -392,19 +392,34 @@
     Chartist.createChartRect = function (svg, options) {
       var yOffset = options.axisY ? options.axisY.offset : 0,
         xOffset = options.axisX ? options.axisX.offset : 0;
+      if(!options.rotate) {
+        return {
+          x1: options.chartPadding + yOffset,
+          y1: Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding),
+          x2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
+          y2: options.chartPadding,
+          width: function () {
+            return this.x2 - this.x1;
+          },
+          height: function () {
+            return this.y1 - this.y2;
+          }
+        };
+      } else {
+        return {
+          y1: options.chartPadding + yOffset,
+          x1: Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding),
+          y2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
+          x2: options.chartPadding,
+          width: function () {
+            return this.x2 - this.x1;
+          },
+          height: function () {
+            return this.y1 - this.y2;
+          }
+        };
+      }
 
-      return {
-        x1: options.chartPadding + yOffset,
-        y1: Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding),
-        x2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
-        y2: options.chartPadding,
-        width: function () {
-          return this.x2 - this.x1;
-        },
-        height: function () {
-          return this.y1 - this.y2;
-        }
-      };
     };
 
     /**
@@ -452,12 +467,22 @@
         }
 
         if (options.axisX.showGrid) {
-          var gridElement = grid.elem('line', {
-            x1: pos,
-            y1: chartRect.y1,
-            x2: pos,
-            y2: chartRect.y2
-          }, [options.classNames.grid, options.classNames.horizontal].join(' '));
+          if(!options.rotate) {
+            var gridElement = grid.elem('line', {
+              x1: pos,
+              y1: chartRect.y1,
+              x2: pos,
+              y2: chartRect.y2
+            }, [options.classNames.grid, options.classNames.horizontal].join(' '));
+          } else {
+            gridElement = grid.elem('line', {
+              x1: chartRect.y1,
+              y1: pos,
+              x2: chartRect.y2,
+              y2: pos
+            }, [options.classNames.grid, options.classNames.horizontal].join(' '));
+          }
+
 
           // Event for grid draw
           eventEmitter.emit('draw', {
@@ -479,13 +504,25 @@
             y: chartRect.y1 + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)
           };
 
-          var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
-            x: labelPosition.x,
-            y: labelPosition.y,
-            width: width,
-            height: height,
-            style: 'overflow: visible;'
-          }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+          if(!options.rotate) {
+            var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+              x: labelPosition.x,
+              y: labelPosition.y,
+              width: width,
+              height: height,
+              style: 'overflow: visible;'
+            }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+          }else {
+            console.log(chartRect.width());
+            labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+              x: labelPosition.y,
+              y: labelPosition.x,
+              width: Math.abs(width),
+              height: Math.abs(height),
+              style: 'overflow: visible;'
+            }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+          }
+
 
           eventEmitter.emit('draw', {
             type: 'label',
@@ -534,12 +571,22 @@
         }
 
         if (options.axisY.showGrid) {
-          var gridElement = grid.elem('line', {
-            x1: chartRect.x1,
-            y1: pos,
-            x2: chartRect.x2,
-            y2: pos
-          }, [options.classNames.grid, options.classNames.vertical].join(' '));
+          if(!options.rotate){
+            var gridElement = grid.elem('line', {
+              x1: chartRect.x1,
+              y1: pos,
+              x2: chartRect.x2,
+              y2: pos
+            }, [options.classNames.grid, options.classNames.vertical].join(' '));
+          } else {
+            var gridElement = grid.elem('line', {
+              x1: pos,
+              y1: chartRect.x1,
+              x2: pos,
+              y2: chartRect.x2
+            }, [options.classNames.grid, options.classNames.vertical].join(' '));
+          }
+
 
           // Event for grid draw
           eventEmitter.emit('draw', {
@@ -561,13 +608,25 @@
             y: pos + options.axisY.labelOffset.y + (supportsForeignObject ? -15 : 0)
           };
 
-          var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
-            x: labelPosition.x,
-            y: labelPosition.y,
-            width: width,
-            height: height,
-            style: 'overflow: visible;'
-          }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+          if(!options.rotate) {
+            var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+              x: labelPosition.x,
+              y: labelPosition.y,
+              width: width,
+              height: height,
+              style: 'overflow: visible;'
+            }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+          } else {
+            labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+              x: labelPosition.y,
+              y: labelPosition.x,
+              width: Math.abs(width),
+              height: Math.abs(height),
+              style: 'overflow: visible;'
+            }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+          }
+
+
 
           eventEmitter.emit('draw', {
             type: 'label',
@@ -2113,6 +2172,7 @@
         labelInterpolationFnc: Chartist.noop,
         scaleMinSpace: 20
       },
+      rotate: false,
       width: undefined,
       height: undefined,
       high: undefined,
@@ -2184,14 +2244,27 @@
           // TODO: Check if we should really be able to add classes to the series. Should be handles with Sass and semantic / specific selectors
           p.x += periodHalfWidth + (biPol * options.seriesBarDistance);
 
-          bar = seriesGroups[i].elem('line', {
-            x1: p.x,
-            y1: zeroPoint.y,
-            x2: p.x,
-            y2: p.y
-          }, options.classNames.bar).attr({
-            'value': normalizedData[i][j]
-          }, Chartist.xmlNs.uri);
+          if(!options.rotate) {
+            bar = seriesGroups[i].elem('line', {
+              x1: p.x,
+              y1: zeroPoint.y,
+              x2: p.x,
+              y2: p.y
+            }, options.classNames.bar).attr({
+              'value': normalizedData[i][j]
+            }, Chartist.xmlNs.uri);
+          } else {
+            bar = seriesGroups[i].elem('line', {
+              x1: zeroPoint.y,
+              y1: p.x,
+              x2: p.y,
+              y2: p.x
+            }, options.classNames.bar).attr({
+              'value': normalizedData[i][j]
+            }, Chartist.xmlNs.uri);
+          }
+
+
 
           this.eventEmitter.emit('draw', {
             type: 'bar',

@@ -29,6 +29,7 @@
       labelInterpolationFnc: Chartist.noop,
       scaleMinSpace: 20
     },
+    rotate: false,
     width: undefined,
     height: undefined,
     high: undefined,
@@ -100,14 +101,27 @@
         // TODO: Check if we should really be able to add classes to the series. Should be handles with Sass and semantic / specific selectors
         p.x += periodHalfWidth + (biPol * options.seriesBarDistance);
 
-        bar = seriesGroups[i].elem('line', {
-          x1: p.x,
-          y1: zeroPoint.y,
-          x2: p.x,
-          y2: p.y
-        }, options.classNames.bar).attr({
-          'value': normalizedData[i][j]
-        }, Chartist.xmlNs.uri);
+        if(!options.rotate) {
+          bar = seriesGroups[i].elem('line', {
+            x1: p.x,
+            y1: zeroPoint.y,
+            x2: p.x,
+            y2: p.y
+          }, options.classNames.bar).attr({
+            'value': normalizedData[i][j]
+          }, Chartist.xmlNs.uri);
+        } else {
+          bar = seriesGroups[i].elem('line', {
+            x1: zeroPoint.y,
+            y1: p.x,
+            x2: p.y,
+            y2: p.x
+          }, options.classNames.bar).attr({
+            'value': normalizedData[i][j]
+          }, Chartist.xmlNs.uri);
+        }
+
+
 
         this.eventEmitter.emit('draw', {
           type: 'bar',
