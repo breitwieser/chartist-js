@@ -72,6 +72,21 @@
       bounds[index] = Chartist.getBounds(that.svg, [normalizedDataTransposed[index]], options);
     });
 
+    //determine number of displayed dimensions
+    var numberOfDisplayedDimensions = 0;
+    //determine number of displayed labels
+    this.data.labels.forEach(function(value, index) {
+      var interpolatedValue = options.axisX.labelInterpolationFnc(value, index);
+      if (!interpolatedValue && interpolatedValue !== 0) {
+        return;
+      }
+      numberOfDisplayedDimensions++;
+    });
+    if(numberOfDisplayedDimensions < 2) {
+      window.console.error("Cannot draw parallel coordinate chart with fewer than two displayed dimensions");
+      return;
+    }
+
     // Start drawing
     var chartRect = Chartist.createChartRect(this.svg, options);
     //adjust chart rect, because labels should be drawn on top of the chart
@@ -99,12 +114,23 @@
       ].join(' '));
 
       //draw connection lines for this series
-      for(var i = 1; i < this.data.labels.length; i++) {
-        var width = chartRect.width() / that.data.labels.length,
-          posX1 = chartRect.x1 + width * (i - 1),
-          posX2 = chartRect.x1 + width * i,
-          posY1 = Chartist.projectPoint(chartRect, bounds[i-1], normalizedData[r], i-1).y,
-          posY2 = Chartist.projectPoint(chartRect, bounds[i], normalizedData[r], i).y;
+      var lastDimensionIdx = -1;
+      var displayedDimIdx = 1;
+      this.data.labels.forEach(function(value, index) {
+        var interpolatedValue = options.axisX.labelInterpolationFnc(value, index);
+        if (!interpolatedValue && interpolatedValue !== 0) {
+          return;
+        }
+        if(lastDimensionIdx === -1) {
+          lastDimensionIdx = index;
+          return;
+        }
+
+        var width = chartRect.width() / numberOfDisplayedDimensions,
+          posX1 = chartRect.x1 + width * (displayedDimIdx - 1),
+          posX2 = chartRect.x1 + width * displayedDimIdx,
+          posY1 = Chartist.projectPoint(chartRect, bounds[lastDimensionIdx], normalizedData[r], lastDimensionIdx).y,
+          posY2 = Chartist.projectPoint(chartRect, bounds[index], normalizedData[r], index).y;
 
         var gridElement = seriesGroups[r].elem('line', {
           x1: posX1,
@@ -114,18 +140,27 @@
         }, options.classNames.line);
 
         //Todo emitt event
-      }
+
+        lastDimensionIdx = index;
+        displayedDimIdx ++;
+      });
     }
 
     //draw grid, axis and labels
     var labels = this.svg.elem('g').addClass(options.classNames.labelGroup),
       grid = this.svg.elem('g').addClass(options.classNames.gridGroup);
 
-    createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
-    bounds.forEach(function(value, index){
-      var width = chartRect.width() / that.data.labels.length,
-        posX = chartRect.x1 + width * index;
+    createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject, numberOfDisplayedDimensions);
+    displayedDimIdx = 0;
+    this.data.labels.forEach(function(value, index){
+      var interpolatedValue = options.axisX.labelInterpolationFnc(value, index);
+      if (!interpolatedValue && interpolatedValue !== 0) {
+        return;
+      }
+      var width = chartRect.width() / numberOfDisplayedDimensions,
+        posX = chartRect.x1 + width * displayedDimIdx;
       createYAxis(chartRect, bounds[index], grid, labels, options, that.eventEmitter, that.supportsForeignObject, posX);
+      displayedDimIdx++;
     });
 
 //    // Draw the series
@@ -331,18 +366,21 @@
     });
   };
 
-  function createXAxis(chartRect, data, grid, labels, options, eventEmitter, supportsForeignObject) {
+  function createXAxis(chartRect, data, grid, labels, options, eventEmitter, supportsForeignObject, numberOfDisplayedDimensions) {
     // Create X-Axis
+    var displayedDimIdx = 0;
+
     data.labels.forEach(function (value, index) {
       var interpolatedValue = options.axisX.labelInterpolationFnc(value, index),
-        width = chartRect.width() / data.labels.length,
+        width = chartRect.width() / numberOfDisplayedDimensions,
         height = options.axisX.offset,
-        pos = chartRect.x1 + width * index;
+        pos = chartRect.x1 + width * displayedDimIdx;
 
       // If interpolated value returns falsey (except 0) we don't draw the grid line
       if (!interpolatedValue && interpolatedValue !== 0) {
         return;
       }
+      displayedDimIdx++;
 
       if (options.axisX.showGrid) {
         var gridElement = grid.elem('line', {
@@ -369,8 +407,7 @@
       if (options.axisX.showLabel) {
         var labelPosition = {
           x: pos + options.axisX.labelOffset.x,
-//          y: chartRect.y1 + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)
-          y: options.chartPadding + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)  //TODO this is the only line differing from the original function in core
+          y: options.chartPadding + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)
         };
 
         var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
