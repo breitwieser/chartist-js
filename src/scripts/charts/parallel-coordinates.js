@@ -74,6 +74,11 @@
 
     // Start drawing
     var chartRect = Chartist.createChartRect(this.svg, options);
+    //adjust chart rect, because labels should be drawn on top of the chart
+    var chartRectY1Old = chartRect.y1,
+      chartHeight = (Chartist.stripUnit(options.height) || this.svg.height());
+    chartRect.y1 = chartHeight - chartRect.y2;
+    chartRect.y2 = chartHeight - chartRectY1Old;
 
     //draw all series
     for(var r = 0; r < this.data.series.length; r++) {
@@ -116,7 +121,7 @@
     var labels = this.svg.elem('g').addClass(options.classNames.labelGroup),
       grid = this.svg.elem('g').addClass(options.classNames.gridGroup);
 
-    Chartist.createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
+    createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
     bounds.forEach(function(value, index){
       var width = chartRect.width() / that.data.labels.length,
         posX = chartRect.x1 + width * index;
@@ -320,6 +325,77 @@
           get space() {
             window.console.warn('EventEmitter: space is deprecated, use width or height instead.');
             return this.height;
+          }
+        });
+      }
+    });
+  };
+
+  function createXAxis(chartRect, data, grid, labels, options, eventEmitter, supportsForeignObject) {
+    // Create X-Axis
+    data.labels.forEach(function (value, index) {
+      var interpolatedValue = options.axisX.labelInterpolationFnc(value, index),
+        width = chartRect.width() / data.labels.length,
+        height = options.axisX.offset,
+        pos = chartRect.x1 + width * index;
+
+      // If interpolated value returns falsey (except 0) we don't draw the grid line
+      if (!interpolatedValue && interpolatedValue !== 0) {
+        return;
+      }
+
+      if (options.axisX.showGrid) {
+        var gridElement = grid.elem('line', {
+          x1: pos,
+          y1: chartRect.y1,
+          x2: pos,
+          y2: chartRect.y2
+        }, [options.classNames.grid, options.classNames.horizontal].join(' '));
+
+        // Event for grid draw
+        eventEmitter.emit('draw', {
+          type: 'grid',
+          axis: 'x',
+          index: index,
+          group: grid,
+          element: gridElement,
+          x1: pos,
+          y1: chartRect.y1,
+          x2: pos,
+          y2: chartRect.y2
+        });
+      }
+
+      if (options.axisX.showLabel) {
+        var labelPosition = {
+          x: pos + options.axisX.labelOffset.x,
+//          y: chartRect.y1 + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)
+          y: options.chartPadding + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)  //TODO this is the only line differing from the original function in core
+        };
+
+        var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+          x: labelPosition.x,
+          y: labelPosition.y,
+          width: width,
+          height: height,
+          style: 'overflow: visible;'
+        }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+
+        eventEmitter.emit('draw', {
+          type: 'label',
+          axis: 'x',
+          index: index,
+          group: labels,
+          element: labelElement,
+          text: '' + interpolatedValue,
+          x: labelPosition.x,
+          y: labelPosition.y,
+          width: width,
+          height: height,
+          // TODO: Remove in next major release
+          get space() {
+            window.console.warn('EventEmitter: space is deprecated, use width or height instead.');
+            return this.width;
           }
         });
       }
