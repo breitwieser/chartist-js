@@ -1,14 +1,4 @@
 sections:
-  - title: Parallel coordinates examples
-    level: 3
-    items:
-      - type: live-example
-        data:
-          title: Simple parallel coordinates
-          level: 4
-          id: example-parallel-coordinates
-          classes: ct-golden-section
-          intro: A very simple parallel coordinate example
   - title: Line chart examples
     level: 3
     items:
@@ -90,7 +80,7 @@ sections:
           id: bi-polar-bar-interpolated
           classes: ct-golden-section
           intro: >
-                    A test test bi-plar bar chart with a range limit set with low and high. There is also an interpolation
+                    A bi-plar bar chart with a range limit set with low and high. There is also an interpolation
                     function used to skip every odd grid line / label.
       - type: live-example
         data:
