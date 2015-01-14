@@ -1,4 +1,14 @@
 sections:
+  - title: Parallel coordinates examples
+    level: 3
+    items:
+      - type: live-example
+        data:
+          title: Simple parallel coordinates
+          level: 4
+          id: example-parallel-coordinates
+          classes: ct-golden-section
+          intro: A very simple parallel coordinate example
   - title: Line chart examples
     level: 3
     items:
