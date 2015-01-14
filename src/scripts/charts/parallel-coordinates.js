@@ -57,51 +57,90 @@
 
   function createChart(options) {
     var seriesGroups = [],
-      bounds = [],
-      normalizedData = Chartist.normalizeDataArray(Chartist.getDataArray(this.data), this.data.labels.length);
+      bounds,
+      normalizedData = Chartist.normalizeDataArray(Chartist.getDataArray(this.data), this.data.labels.length),
+      numberOfDisplayedDimensions;
 
     // Create new svg object
     this.svg = Chartist.createSvg(this.container, options.width, options.height, options.classNames.chart);
 
-    //transpose data object
-    var normalizedDataTransposed = transpose(normalizedData);
-
     // initialize bounds
-    var that = this;
-    this.data.labels.forEach(function(value, index){
-      bounds[index] = Chartist.getBounds(that.svg, [normalizedDataTransposed[index]], options);
-    });
+    bounds = getBoundsArray.call(this, normalizedData, options);
 
     //determine number of displayed dimensions
+    numberOfDisplayedDimensions = getNumberOfDisplayedDimensions.call(this, options);
+
+    if(numberOfDisplayedDimensions < 2) {
+      window.console.error("Cannot draw parallel coordinate chart with fewer than two displayed dimensions");
+      return;
+    }
+
+    if(numberOfDisplayedDimensions !== this.data.labels.length) {
+      //display filter icon
+      //TODO
+    }
+
+    // create chart rect
+    var chartRect = createChartRect.call(this, options);
+
+    //draw all data records
+    drawDataRecords.call(this, seriesGroups, options, chartRect, numberOfDisplayedDimensions, bounds, normalizedData);
+
+    //draw grid, axis and labels
+    drawAxisGridsLabels.call(this, options, chartRect, numberOfDisplayedDimensions, bounds);
+
+    this.eventEmitter.emit('created', {
+      bounds: bounds,
+      chartRect: chartRect,
+      svg: this.svg,
+      options: options
+    });
+  }
+
+  function getBoundsArray(normalizedData, options) {
+    var bounds = [],
+      normalizedDataTransposed,
+      that = this;
+
+    //transpose data object
+    normalizedDataTransposed = transpose(normalizedData);
+
+    this.data.labels.forEach(function (value, index) {
+      bounds[index] = Chartist.getBounds(that.svg, [normalizedDataTransposed[index]], options);
+    });
+    return bounds;
+  }
+
+  function getNumberOfDisplayedDimensions(options) {
     var numberOfDisplayedDimensions = 0;
     //determine number of displayed labels
-    this.data.labels.forEach(function(value, index) {
+    this.data.labels.forEach(function (value, index) {
       var interpolatedValue = options.axisX.labelInterpolationFnc(value, index);
       if (!interpolatedValue && interpolatedValue !== 0) {
         return;
       }
       numberOfDisplayedDimensions++;
     });
-    if(numberOfDisplayedDimensions < 2) {
-      window.console.error("Cannot draw parallel coordinate chart with fewer than two displayed dimensions");
-      return;
-    }
+    return numberOfDisplayedDimensions;
+  }
 
-    // Start drawing
+  function createChartRect(options) {
     var chartRect = Chartist.createChartRect(this.svg, options);
     //adjust chart rect, because labels should be drawn on top of the chart
     var chartRectY1Old = chartRect.y1,
       chartHeight = (Chartist.stripUnit(options.height) || this.svg.height());
     chartRect.y1 = chartHeight - chartRect.y2;
     chartRect.y2 = chartHeight - chartRectY1Old;
+    return chartRect;
+  }
 
-    //draw all series
-    for(var r = 0; r < this.data.series.length; r++) {
+  function drawDataRecords(seriesGroups, options, chartRect, numberOfDisplayedDimensions, bounds, normalizedData) {
+    for (var r = 0; r < this.data.series.length; r++) {
 
       seriesGroups[r] = this.svg.elem('g');
 
       // If the series is an object and contains a name we add a custom attribute
-      if(this.data.series[r].name) {
+      if (this.data.series[r].name) {
         seriesGroups[r].attr({
           'series-name': this.data.series[r].name
         }, Chartist.xmlNs.uri);
@@ -116,12 +155,13 @@
       //draw connection lines for this series
       var lastDimensionIdx = -1;
       var displayedDimIdx = 1;
-      this.data.labels.forEach(function(value, index) {
+      var that = this;
+      this.data.labels.forEach(function (value, index) {
         var interpolatedValue = options.axisX.labelInterpolationFnc(value, index);
         if (!interpolatedValue && interpolatedValue !== 0) {
           return;
         }
-        if(lastDimensionIdx === -1) {
+        if (lastDimensionIdx === -1) {
           lastDimensionIdx = index;
           return;
         }
@@ -148,17 +188,19 @@
         });
 
         lastDimensionIdx = index;
-        displayedDimIdx ++;
+        displayedDimIdx++;
       });
     }
+  }
 
-    //draw grid, axis and labels
+  function drawAxisGridsLabels(options, chartRect, numberOfDisplayedDimensions, bounds) {
     var labels = this.svg.elem('g').addClass(options.classNames.labelGroup),
       grid = this.svg.elem('g').addClass(options.classNames.gridGroup);
 
     createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject, numberOfDisplayedDimensions);
-    displayedDimIdx = 0;
-    this.data.labels.forEach(function(value, index){
+    var displayedDimIdx = 0;
+    var that = this;
+    this.data.labels.forEach(function (value, index) {
       var interpolatedValue = options.axisX.labelInterpolationFnc(value, index);
       if (!interpolatedValue && interpolatedValue !== 0) {
         return;
@@ -167,13 +209,6 @@
         posX = chartRect.x1 + width * displayedDimIdx;
       createYAxis(chartRect, bounds[index], grid, labels, options, that.eventEmitter, that.supportsForeignObject, posX);
       displayedDimIdx++;
-    });
-
-    this.eventEmitter.emit('created', {
-      bounds: bounds,
-      chartRect: chartRect,
-      svg: this.svg,
-      options: options
     });
   }
 
