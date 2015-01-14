@@ -454,53 +454,51 @@ var Chartist = {
 
       if (options.axisX.showLabel) {
 
-        /*
-        console.log('chartrect: x1 ' + chartRect.x1 + ', y1: ' + chartRect.y1);
-        console.log('x2 ' + chartRect.x2 + ', y2: ' + chartRect.y2);
-        */
-
         var labelPosition = {
           x: pos + options.axisX.labelOffset.x,
           y: chartRect.y1 + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)
         };
 
         var rotateLabels = '';
+        var style = 'overflow: visible';
 
         if(options.axisX.rotateLabels) {
 
           var rotate_offset_y = 0;
 
-          console.log("labelpos: x " + (labelPosition.x + width) + ", y " + labelPosition.y);
-
           var thepoint_x = labelPosition.x + width;
           var thepoint_y = labelPosition.y;
 
-          var rotatedpoint_x = labelPosition.x + (thepoint_x - labelPosition.x) * Math.cos(-45) - (thepoint_y - labelPosition.y) * Math.sin(-45);
+          //var rotatedpoint_x = labelPosition.x + (thepoint_x - labelPosition.x) * Math.cos(-45) - (thepoint_y - labelPosition.y) * Math.sin(-45);
           var rotatedpoint_y = labelPosition.y + (thepoint_x - labelPosition.x) * Math.sin(-45) - (thepoint_y - labelPosition.y) * Math.cos(-45);
 
-          console.log("rotated coords: x " + rotatedpoint_x + ", y " + rotatedpoint_y);
-
-          console.log('chartrect: x1 ' + chartRect.x1 + ', y1: ' + chartRect.y1);
+          // DEBUG
+          // console.log('rotated coords: x ' + rotatedpoint_x + ', y ' + rotatedpoint_y);
+          // console.log('chartrect: x1 ' + chartRect.x1 + ', y1: ' + chartRect.y1);
+          // console.log('LABELPOS y is ' + labelPosition.y);
+          // console.log('Chartrect y is ' + chartRect.y1);
+          // console.log('labelpos: x ' + (labelPosition.x + width) + ', y ' + labelPosition.y);
 
           while((rotatedpoint_y + rotate_offset_y) < ((chartRect.y1-5))) {
             rotate_offset_y += 5;
           }
 
-          console.log(rotate_offset_y);
+          width = width/2.0;
 
-          //console.log('rotate x Labels activated!');
-          //console.log('width' + width);
-          rotateLabels = 'translate (0,' + rotate_offset_y + ') ' +
+          // rotation + translation (prevent colliding labels with chart)
+          rotateLabels = 'translate (0,' + height/2.0 + ') ' +
                          'rotate(-45,' + labelPosition.x + ',' + labelPosition.y + ')';
+
+          // don't show overflow
+          style = 'overflow: hidden';
         }
 
-
         var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
-          x: labelPosition.x+(width/2.0),
+          x: labelPosition.x,//+(width/2.0),
           y: labelPosition.y,
           width: width,
           height: height,
-          style: 'overflow: visible;',
+          style: style,
           transform: rotateLabels
         }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
 
@@ -523,6 +521,9 @@ var Chartist = {
         });
       }
     });
+
+    // no newline in labels
+    $('.' + options.classNames.label).css('white-space','nowrap');
   };
 
   /**
@@ -587,6 +588,7 @@ var Chartist = {
                          'rotate(-45,' + labelPosition.x + ',' + labelPosition.y + ')';
 
           //height += 20.0;
+          //console.log(svg);
         }
 
         var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {

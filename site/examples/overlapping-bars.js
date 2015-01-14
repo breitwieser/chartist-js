@@ -7,7 +7,10 @@ var data = {
 };
 
 var options = {
-  seriesBarDistance: 10
+  seriesBarDistance: 10,
+  axisX: {
+    rotateLabels: true
+  }
 };
 
 var responsiveOptions = [
