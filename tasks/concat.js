@@ -25,7 +25,8 @@ module.exports = function (grunt) {
           '<%= pkg.config.src %>/scripts/svg.js',
           '<%= pkg.config.src %>/scripts/charts/line.js',
           '<%= pkg.config.src %>/scripts/charts/bar.js',
-          '<%= pkg.config.src %>/scripts/charts/pie.js'
+          '<%= pkg.config.src %>/scripts/charts/pie.js',
+          '<%= pkg.config.src %>/scripts/charts/parallel-coordinates.js'
         ]
       }
     }
