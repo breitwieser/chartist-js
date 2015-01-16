@@ -10,7 +10,6 @@ $ct-class-chart-pie: ct-chart-pie !default;
 $ct-class-label: ct-label !default;
 $ct-class-series: ct-series !default;
 $ct-class-line: ct-line !default;
-$ct-class-line-bold: ct-line-bold !default;
 $ct-class-point: ct-point !default;
 $ct-class-area: ct-area !default;
 $ct-class-bar: ct-bar !default;
@@ -37,7 +36,6 @@ $ct-grid-width: 1px !default;
 
 // Line chart properties
 $ct-line-width: 4px !default;
-$ct-line-width-bold:6px !default;
 $ct-line-dasharray: false !default;
 $ct-point-size: 10px !default;
 // Line chart point, can be either round or square
@@ -62,7 +60,6 @@ $ct-include-colored-series: $ct-include-classes !default;
 // If set to true this will include all responsive container variations using the scales defined at the top of the script
 $ct-include-alternative-responsive-containers: $ct-include-classes !default;
 
-// Series names and colors. This can be extended or customized as desired. Just add more series and colors. 
-// (#d70206, #F05B4F, #F4C63D, #453D3F)
+// Series names and colors. This can be extended or customized as desired. Just add more series and colors.
 $ct-series-names: (a, b, c, d) !default;
 $ct-series-colors: (#d70206, #F05B4F, #F4C63D, #453D3F) !default;

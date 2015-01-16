@@ -40,14 +40,12 @@
     low: undefined,
     high: undefined,
     chartPadding: 5,
-    lineWidth: 2,
     classNames: {
       chart: 'ct-chart-line',
       label: 'ct-label',
       labelGroup: 'ct-labels',
       series: 'ct-series',
       line: 'ct-line',
-      mean: 'ct-class-line-bold',
       point: 'ct-point',
       area: 'ct-area',
       grid: 'ct-grid',
@@ -118,7 +116,6 @@
       //draw connection lines for this series
       var lastDimensionIdx = -1;
       var displayedDimIdx = 1;
-      var mean = 0;
       this.data.labels.forEach(function(value, index) {
         var interpolatedValue = options.axisX.labelInterpolationFnc(value, index);
         if (!interpolatedValue && interpolatedValue !== 0) {
@@ -153,9 +150,6 @@
         lastDimensionIdx = index;
         displayedDimIdx ++;
       });
-
-      //draw mean
-
     }
 
     //draw grid, axis and labels
