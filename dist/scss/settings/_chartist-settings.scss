@@ -60,6 +60,7 @@ $ct-include-colored-series: $ct-include-classes !default;
 // If set to true this will include all responsive container variations using the scales defined at the top of the script
 $ct-include-alternative-responsive-containers: $ct-include-classes !default;
 
-// Series names and colors. This can be extended or customized as desired. Just add more series and colors.
-$ct-series-names: (a, b, c, d) !default;
-$ct-series-colors: (#d70206, #F05B4F, #F4C63D, #453D3F) !default;
+// Series names and colors. This can be extended or customized as desired. Just add more series and colors. 
+// (#d70206, #F05B4F, #F4C63D, #453D3F)
+$ct-series-names: (a, b) !default;
+$ct-series-colors: (#d70206, #d70206) !default;

@@ -111,6 +111,10 @@
     @include ct-chart-line($ct-line-width);
   }
 
+  .#{$ct-class-line-bold} {
+    @include ct-chart-line($ct-line-width-bold)
+  }
+
   .#{$ct-class-area} {
     @include ct-chart-area();
   }
