@@ -7,8 +7,12 @@
 <body>
 <div class="chart" style="width: 95%; height: 95%">
     <div class="ct-chart ct-golden-section"></div>
+    <!--<div class="ct-filter"></div>-->
 </div>
-
+<section>
+    <h2>Filtered Dimensions:</h2>
+    <div class="ct-filter"></div>
+</section>
 
 <script src="./dist/chartist.js"></script>
 <script type="text/javascript">
@@ -28,6 +32,9 @@
             }
         }]
     ];
+    var options = {
+        filteredDimContainer: ".ct-filter"
+    };
 
 
     new Chartist.ParallelCoordinates('.ct-chart', {
@@ -37,7 +44,8 @@
             [2, 1, 3.5, 7, 3],
             [1, 3, 4, 5, 6]
         ]
-    },null, responsiveOptions);
+    },options, responsiveOptions);
+
 </script>
 
 </body>
