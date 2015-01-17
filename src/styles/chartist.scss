@@ -70,9 +70,10 @@
   }
 }
 
-@mixin ct-mean($ct-mean-line-width: $ct-mean-line-width, $ct-mean-fill: $ct-mean-fill) {
-  fill: $ct-mean-fill;
+@mixin ct-mean($ct-mean-line-width: $ct-mean-line-width, $ct-mean-stroke: $ct-mean-stroke) {
+  fill: none;
   stroke-width: $ct-mean-line-width;
+  stroke: $ct-mean-stroke;
 }
 
 @mixin ct-chart-area($ct-area-opacity: $ct-area-opacity) {
@@ -130,7 +131,7 @@
   }
 
   .#{$ct-class-mean} {
-    @include ct-mean($ct-mean-line-width);
+    @include ct-mean($ct-mean-line-width, $ct-mean-stroke);
   }
 
   .#{$ct-class-area} {

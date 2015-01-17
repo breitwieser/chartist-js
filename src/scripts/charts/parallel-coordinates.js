@@ -36,6 +36,7 @@
     showLine: true,
     showPoint: true,
     showArea: false,
+    showMean: true,
     areaBase: 0,
     lineSmooth: true,
     low: undefined,
@@ -93,6 +94,10 @@
     //draw all data records
     drawDataRecords.call(this, seriesGroups, options, chartRect, bounds, normalizedData);
 
+    if(options.showMean) {
+      drawMean(chartRect, options, bounds, normalizedData, this.svg);
+    }    
+    
     //draw grid, axis and labels
     drawAxisGridsLabels.call(this, options, chartRect, bounds);
 
@@ -207,11 +212,15 @@
         });
       });
     }
+  }
 
+  function drawMean(chartRect, options, bounds, normalizedData, svg) {
     var n = dimensions.display.length;
     var i,j;
     var entry;
     var mean = [];
+    var currentDimIdx = -1;
+    var lastDimIdx = -1;
 
     for(i=0; i<n; i++) {
       mean[i] = 0;
@@ -229,11 +238,7 @@
       mean[i] /= normalizedData.length;
     }
 
-    var meanSeries = this.svg.elem('g');
-    meanSeries.addClass([
-        options.classNames.series,
-        (this.data.series[0].className || options.classNames.series + '-' + Chartist.alphaNumerate(0))
-      ].join(' '));
+    var meanSeries = svg.elem('g');
 
     dimensions.display.forEach(function(value, index) {
         
