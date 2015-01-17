@@ -7,9 +7,12 @@ $ct-class-chart: ct-chart !default;
 $ct-class-chart-line: ct-chart-line !default;
 $ct-class-chart-bar: ct-chart-bar !default;
 $ct-class-chart-pie: ct-chart-pie !default;
+$ct-class-chart-parallelCoordinates: ct-chart-parallelCoordinates !default;
 $ct-class-label: ct-label !default;
 $ct-class-series: ct-series !default;
 $ct-class-line: ct-line !default;
+$ct-class-parallelCoordinates: ct-parallelCoordinates !default;
+$ct-class-mean: ct-mean !default; 
 $ct-class-point: ct-point !default;
 $ct-class-area: ct-area !default;
 $ct-class-bar: ct-bar !default;
@@ -42,6 +45,19 @@ $ct-point-size: 10px !default;
 $ct-point-shape: round !default;
 // Area fill transparency between 0 and 1
 $ct-area-opacity: 0.1 !default;
+
+// parallel coordinates properties
+$ct-parallelCoordinates-line-width: 2px !default;
+$ct-parallelCoordinates-dasharray: false !default;
+$ct-point-size: 10px !default;
+// Line chart point, can be either round or square
+$ct-point-shape: round !default;
+// Area fill transparency between 0 and 1
+$ct-area-opacity: 0.1 !default;
+
+// Mean proberties
+$ct-mean-fill: #00FF00 !default;
+$ct-mean-line-width: 4px !default;
 
 // Bar chart bar width
 $ct-bar-width: 10px !default;

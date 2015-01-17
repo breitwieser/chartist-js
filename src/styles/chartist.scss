@@ -61,6 +61,20 @@
   }
 }
 
+@mixin ct-chart-parallelCoordinates($ct-parallelCoordinates-line-width: ct-parallelCoordinates-line-width, $ct-parallelCoordinates-dasharray: ct-parallelCoordinates-dasharray) {
+  fill: none;
+  stroke-width: $ct-parallelCoordinates-line-width;
+
+  @if ($ct-parallelCoordinates-dasharray) {
+    stroke-dasharray: $ct-parallelCoordinates-dasharray;
+  }
+}
+
+@mixin ct-mean($ct-mean-line-width: $ct-mean-line-width, $ct-mean-fill: $ct-mean-fill) {
+  fill: $ct-mean-fill;
+  stroke-width: $ct-mean-line-width;
+}
+
 @mixin ct-chart-area($ct-area-opacity: $ct-area-opacity) {
   stroke: none;
   fill-opacity: $ct-area-opacity;
@@ -77,7 +91,7 @@
 }
 
 @mixin ct-chart-series-color($color) {
-  .#{$ct-class-point}, .#{$ct-class-line}, .#{$ct-class-bar}, .#{$ct-class-slice}.#{$ct-class-donut} {
+  .#{$ct-class-point}, .#{$ct-class-line}, .#{$ct-class-parallelCoordinates}, .#{$ct-class-bar}, .#{$ct-class-slice}.#{$ct-class-donut} {
     stroke: $color;
   }
 
@@ -86,7 +100,7 @@
   }
 }
 
-@mixin ct-chart($ct-container-ratio: $ct-container-ratio, $ct-text-color: $ct-text-color, $ct-text-size: $ct-text-size, $ct-horizontal-text-align: $ct-horizontal-text-align, $ct-vertical-text-align: $ct-vertical-text-align, $ct-grid-color: $ct-grid-color, $ct-grid-width: $ct-grid-width, $ct-grid-dasharray: $ct-grid-dasharray, $ct-point-size: $ct-point-size, $ct-point-shape: $ct-point-shape, $ct-line-width: $ct-line-width, $ct-bar-width: $ct-bar-width, $ct-donut-width: $ct-donut-width, $ct-series-names: $ct-series-names, $ct-series-colors: $ct-series-colors) {
+@mixin ct-chart($ct-container-ratio: $ct-container-ratio, $ct-text-color: $ct-text-color, $ct-text-size: $ct-text-size, $ct-horizontal-text-align: $ct-horizontal-text-align, $ct-vertical-text-align: $ct-vertical-text-align, $ct-grid-color: $ct-grid-color, $ct-grid-width: $ct-grid-width, $ct-grid-dasharray: $ct-grid-dasharray, $ct-point-size: $ct-point-size, $ct-point-shape: $ct-point-shape, $ct-line-width: $ct-line-width, $ct-parallelCoordinates-line-width: $ct-parallelCoordinates-line-width, $ct-mean-line-width: $ct-mean-line-width, $ct-bar-width: $ct-bar-width, $ct-donut-width: $ct-donut-width, $ct-series-names: $ct-series-names, $ct-series-colors: $ct-series-colors) {
   .#{$ct-class-label} {
     @include ct-chart-label($ct-text-color, $ct-text-size);
   }
@@ -109,6 +123,14 @@
 
   .#{$ct-class-line} {
     @include ct-chart-line($ct-line-width);
+  }
+
+  .#{$ct-class-parallelCoordinates} {
+    @include ct-chart-parallelCoordinates($ct-parallelCoordinates-line-width);
+  }
+
+  .#{$ct-class-mean} {
+    @include ct-mean($ct-mean-line-width);
   }
 
   .#{$ct-class-area} {

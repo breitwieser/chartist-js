@@ -40,13 +40,15 @@
     lineSmooth: true,
     low: undefined,
     high: undefined,
+    lineWidth: 2,
     chartPadding: 5,
     classNames: {
-      chart: 'ct-chart-line',
+      chart: 'ct-chart-parallelCoordinates',
       label: 'ct-label',
       labelGroup: 'ct-labels',
       series: 'ct-series',
-      line: 'ct-line',
+      line: 'ct-parallelCoordinates',
+      mean: 'ct-mean',
       point: 'ct-point',
       area: 'ct-area',
       grid: 'ct-grid',
@@ -205,6 +207,56 @@
         });
       });
     }
+
+    var n = dimensions.display.length;
+    var i,j;
+    var entry;
+    var mean = [];
+
+    for(i=0; i<n; i++) {
+      mean[i] = 0;
+    }
+
+    // get mean
+    for (i = 0; i < normalizedData.length; i++) {
+    entry = normalizedData[i];
+    for (j = 0; j < entry.length; j++) {
+        mean[j] += entry[j]; 
+      }
+    }
+
+    for(i=0; i<n;i++) {
+      mean[i] /= normalizedData.length;
+    }
+
+    var meanSeries = this.svg.elem('g');
+    meanSeries.addClass([
+        options.classNames.series,
+        (this.data.series[0].className || options.classNames.series + '-' + Chartist.alphaNumerate(0))
+      ].join(' '));
+
+    dimensions.display.forEach(function(value, index) {
+        
+        if(index == 0) {
+          return;
+        }
+
+        currentDimIdx = dimensions.dimensionIndex[index];
+        lastDimIdx = dimensions.dimensionIndex[index-1];
+
+        var width = chartRect.width() / dimensions.display.length,
+          posX1 = chartRect.x1 + width * (index - 1),
+          posX2 = chartRect.x1 + width * index,
+          posY1 = Chartist.projectPoint(chartRect, bounds[lastDimIdx], mean, lastDimIdx).y,
+          posY2 = Chartist.projectPoint(chartRect, bounds[currentDimIdx], mean, currentDimIdx).y;
+
+        var line = meanSeries.elem('line', {
+          x1: posX1,
+          y1: posY1,
+          x2: posX2,
+          y2: posY2
+        }, options.classNames.mean);
+      });
   }
 
   function drawAxisGridsLabels(options, chartRect, bounds) {
