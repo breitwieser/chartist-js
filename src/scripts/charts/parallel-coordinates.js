@@ -165,6 +165,7 @@
   }
 
   function drawDataRecords(seriesGroups, options, chartRect, bounds, normalizedData) {
+
     for (var r = 0; r < this.data.series.length; r++) {
 
       seriesGroups[r] = this.svg.elem('g');
@@ -230,9 +231,6 @@
     var HistogramMaxWidth = width * 0.55;
     var height = (chartRect.height() / n);
 
-    console.log(bounds);
-    console.log(normalizedData);
-
     var histogramSeries = svg.elem('g');
     //histogramSeries.addClass(options.classNames.histogram);
 
@@ -243,13 +241,10 @@
       var currDim = normalizedData[index];
       var valueList = [];
 
-      console.log(step);
-
       for(i = 0; i < n; i++) {
         valueList[i] = 0;
       }
 
-      console.log(valueList);
       normalizedData.forEach(function(currData) {
         var data = currData[index];
         data -= bounds[index].min;
