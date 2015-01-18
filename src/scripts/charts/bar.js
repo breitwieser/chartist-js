@@ -46,7 +46,9 @@
         grid: 'ct-grid',
         gridGroup: 'ct-grids',
         vertical: 'ct-vertical',
-        horizontal: 'ct-horizontal'
+        horizontal: 'ct-horizontal',
+        rotateLabelX: 'ct-rotate-label-x',
+        rotateLabelY: 'ct-rotate-label-y'
     }
   };
 

@@ -11,10 +11,24 @@ new Chartist.Bar('.ct-chart', {
     offset: 60
   },
   axisY: {
-    offset: 80,
     labelInterpolationFnc: function(value) {
-      return value + ' CHF'
+      return (value/10000) + 'k CHF'
     },
     scaleMinSpace: 15
   }
-});
+},[
+  ['screen and (max-width: 640px)', {
+    seriesBarDistance: 5,
+    axisX: {
+      labelInterpolationFnc: function (value) {
+        return value.substring(0,5);
+      }
+    }
+  }]
+]).on('draw', function(data) {
+    if(data.type === 'label' && data.axis === 'x') {
+      data.element.attr({
+        width: 50
+      })
+    }
+  });

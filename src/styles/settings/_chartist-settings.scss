@@ -18,6 +18,8 @@ $ct-class-donut: ct-donut !default;
 $ct-class-grid: ct-grid !default;
 $ct-class-vertical: ct-vertical !default;
 $ct-class-horizontal: ct-horizontal !default;
+$ct-class-rotatedlabel-x: ct-rotate-label-x !default;
+$ct-class-rotatedlabel-y: ct-rotate-label-y !default;
 
 // Container ratio
 $ct-container-ratio: (1/1.618) !default;
@@ -28,6 +30,7 @@ $ct-text-size: 0.75rem !default;
 $ct-text-align: left !default;
 $ct-horizontal-text-align: left !default;
 $ct-vertical-text-align: right !default;
+$ct-translate-label-y: 0.0em;
 
 // Grid styles
 $ct-grid-color: rgba(0, 0, 0, 0.2) !default;

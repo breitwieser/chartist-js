@@ -38,6 +38,20 @@
   text-align: $ct-text-align;
 }
 
+@mixin ct-chart-rotatedlabel-x($ct-translate-label-y) {
+  transform-origin: 0% 50%;
+  -ms-transform: rotate(-45deg); /* IE 9 */
+  -webkit-transform: rotate(-45deg); /* Chrome, Safari, Opera */
+  transform: translateY($ct-translate-label-y) rotate(-45deg);
+}
+
+@mixin ct-chart-rotatedlabel-y() {
+  transform-origin: 0% 50%;
+  -ms-transform: rotate(-45deg); /* IE 9 */
+  -webkit-transform: rotate(-45deg); /* Chrome, Safari, Opera */
+  transform: rotate(-45deg);
+}
+
 @mixin ct-chart-grid($ct-grid-color: $ct-grid-color, $ct-grid-width: $ct-grid-width, $ct-grid-dasharray: $ct-grid-dasharray) {
   stroke: $ct-grid-color;
   stroke-width: $ct-grid-width;
@@ -86,7 +100,7 @@
   }
 }
 
-@mixin ct-chart($ct-container-ratio: $ct-container-ratio, $ct-text-color: $ct-text-color, $ct-text-size: $ct-text-size, $ct-horizontal-text-align: $ct-horizontal-text-align, $ct-vertical-text-align: $ct-vertical-text-align, $ct-grid-color: $ct-grid-color, $ct-grid-width: $ct-grid-width, $ct-grid-dasharray: $ct-grid-dasharray, $ct-point-size: $ct-point-size, $ct-point-shape: $ct-point-shape, $ct-line-width: $ct-line-width, $ct-bar-width: $ct-bar-width, $ct-donut-width: $ct-donut-width, $ct-series-names: $ct-series-names, $ct-series-colors: $ct-series-colors) {
+@mixin ct-chart($ct-container-ratio: $ct-container-ratio, $ct-text-color: $ct-text-color, $ct-text-size: $ct-text-size, $ct-horizontal-text-align: $ct-horizontal-text-align, $ct-vertical-text-align: $ct-vertical-text-align, $ct-grid-color: $ct-grid-color, $ct-grid-width: $ct-grid-width, $ct-grid-dasharray: $ct-grid-dasharray, $ct-point-size: $ct-point-size, $ct-point-shape: $ct-point-shape, $ct-line-width: $ct-line-width, $ct-bar-width: $ct-bar-width, $ct-donut-width: $ct-donut-width, $ct-series-names: $ct-series-names, $ct-series-colors: $ct-series-colors, $ct-translate-label-y: $ct-translate-label-y) {
   .#{$ct-class-label} {
     @include ct-chart-label($ct-text-color, $ct-text-size);
   }
@@ -97,6 +111,14 @@
 
   .#{$ct-class-label}.#{$ct-class-vertical} {
     @include ct-chart-label($ct-text-color, $ct-text-size, $ct-vertical-text-align);
+  }
+
+  .#{$ct-class-label}.#{$ct-class-rotatedlabel-x} {
+    @include ct-chart-rotatedlabel-x($ct-translate-label-y);
+  }
+
+  .#{$ct-class-label}.#{$ct-class-rotatedlabel-y} {
+    @include ct-chart-rotatedlabel-y();
   }
 
   .#{$ct-class-grid} {

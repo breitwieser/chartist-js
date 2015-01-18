@@ -459,48 +459,25 @@ var Chartist = {
           y: chartRect.y1 + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)
         };
 
-        var rotateLabels = '';
-        var style = 'overflow: visible';
+        // default case (ct-label ct-label-horizontal)
+        var classnames = [options.classNames.label, options.classNames.horizontal].join(' ');
 
         if(options.axisX.rotateLabels) {
 
-          var rotate_offset_y = 0;
+          // add rotation for labels by adding css class
+          classnames = [options.classNames.label, options.classNames.horizontal,
+                        options.classNames.rotateLabelX].join(' ');
 
-          var thepoint_x = labelPosition.x + width;
-          var thepoint_y = labelPosition.y;
-
-          //var rotatedpoint_x = labelPosition.x + (thepoint_x - labelPosition.x) * Math.cos(-45) - (thepoint_y - labelPosition.y) * Math.sin(-45);
-          var rotatedpoint_y = labelPosition.y + (thepoint_x - labelPosition.x) * Math.sin(-45) - (thepoint_y - labelPosition.y) * Math.cos(-45);
-
-          // DEBUG
-          // console.log('rotated coords: x ' + rotatedpoint_x + ', y ' + rotatedpoint_y);
-          // console.log('chartrect: x1 ' + chartRect.x1 + ', y1: ' + chartRect.y1);
-          // console.log('LABELPOS y is ' + labelPosition.y);
-          // console.log('Chartrect y is ' + chartRect.y1);
-          // console.log('labelpos: x ' + (labelPosition.x + width) + ', y ' + labelPosition.y);
-
-          while((rotatedpoint_y + rotate_offset_y) < ((chartRect.y1-5))) {
-            rotate_offset_y += 5;
-          }
-
-          width = width/2.0;
-
-          // rotation + translation (prevent colliding labels with chart)
-          rotateLabels = 'translate (0,' + height/2.0 + ') ' +
-                         'rotate(-45,' + labelPosition.x + ',' + labelPosition.y + ')';
-
-          // don't show overflow
-          style = 'overflow: hidden';
+          // add some space at the bottom
+          $('.ct-chart').css('margin-bottom','0.0em');
         }
 
         var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
-          x: labelPosition.x,//+(width/2.0),
+          x: labelPosition.x,
           y: labelPosition.y,
           width: width,
-          height: height,
-          style: style,
-          transform: rotateLabels
-        }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+          height: height
+        }, classnames, supportsForeignObject);
 
         eventEmitter.emit('draw', {
           type: 'label',
@@ -521,9 +498,6 @@ var Chartist = {
         });
       }
     });
-
-    // no newline in labels
-    $('.' + options.classNames.label).css('white-space','nowrap');
   };
 
   /**
@@ -580,15 +554,14 @@ var Chartist = {
           y: pos + options.axisY.labelOffset.y + (supportsForeignObject ? -15 : 0)
         };
 
-        var rotateLabels = '';
+        // default case (ct-label ct-label-horizontal)
+        var classnames = [options.classNames.label, options.classNames.vertical].join(' ');
 
         if(options.axisY.rotateLabels) {
-          console.log('rotate x Labels activated!');
-          rotateLabels = 'translate (0,' + (width/1.5) + ') ' +
-                         'rotate(-45,' + labelPosition.x + ',' + labelPosition.y + ')';
 
-          //height += 20.0;
-          //console.log(svg);
+          // add rotation for labels by adding css class
+          classnames = [options.classNames.label, options.classNames.vertical,
+            options.classNames.rotateLabelY].join(' ');
         }
 
         var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
@@ -596,9 +569,8 @@ var Chartist = {
           y: labelPosition.y,
           width: width,
           height: height,
-          style: 'overflow: visible;',
-          transform: rotateLabels
-        }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+          style: 'overflow: visible;'
+        }, classnames, supportsForeignObject);
 
         eventEmitter.emit('draw', {
           type: 'label',
