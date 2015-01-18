@@ -76,6 +76,14 @@
   stroke: $ct-mean-stroke;
 }
 
+@mixin ct-histogram($ct-histogram-stroke: $ct-histogram-stroke, $ct-histogram-width: $ct-histogram-width) {
+  stroke: $ct-histogram-stroke;
+  stroke-width: $ct-histogram-width;
+  stroke-opacity: 0.3;
+
+  fill-opacity: 0.0;
+}
+
 @mixin ct-chart-area($ct-area-opacity: $ct-area-opacity) {
   stroke: none;
   fill-opacity: $ct-area-opacity;
@@ -132,6 +140,10 @@
 
   .#{$ct-class-mean} {
     @include ct-mean($ct-mean-line-width, $ct-mean-stroke);
+  }
+
+  .#{$ct-class-histogram} {
+    @include ct-histogram($ct-histogram-stroke, $ct-histogram-width);
   }
 
   .#{$ct-class-area} {

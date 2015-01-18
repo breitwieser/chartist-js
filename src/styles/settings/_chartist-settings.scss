@@ -13,6 +13,7 @@ $ct-class-series: ct-series !default;
 $ct-class-line: ct-line !default;
 $ct-class-parallelCoordinates: ct-parallelCoordinates !default;
 $ct-class-mean: ct-mean !default; 
+$ct-class-histogram: ct-histogram !default;
 $ct-class-point: ct-point !default;
 $ct-class-area: ct-area !default;
 $ct-class-bar: ct-bar !default;
@@ -55,9 +56,14 @@ $ct-point-shape: round !default;
 // Area fill transparency between 0 and 1
 $ct-area-opacity: 0.1 !default;
 
-// Mean proberties
+// Mean properties
 $ct-mean-stroke: #00FF00 !default;
 $ct-mean-line-width: 4px !default;
+
+// Histogram properties
+$ct-histogram-stroke:#000000 !default;
+$ct-histogram-width:2px !default;
+$ct-histogram-opacity:0.7 !default;
 
 // Bar chart bar width
 $ct-bar-width: 10px !default;

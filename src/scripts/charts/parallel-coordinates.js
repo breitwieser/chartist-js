@@ -37,6 +37,7 @@
     showPoint: true,
     showArea: false,
     showMean: true,
+    showHistogram: true,
     areaBase: 0,
     lineSmooth: true,
     low: undefined,
@@ -50,6 +51,7 @@
       series: 'ct-series',
       line: 'ct-parallelCoordinates',
       mean: 'ct-mean',
+      histogram: 'ct-histogram',
       point: 'ct-point',
       area: 'ct-area',
       grid: 'ct-grid',
@@ -98,6 +100,10 @@
       drawMean(chartRect, options, bounds, normalizedData, this.svg);
     }    
     
+    if(options.showHistogram) {
+      drawHistrogram(chartRect, options, bounds, normalizedData, this.svg);
+    }
+
     //draw grid, axis and labels
     drawAxisGridsLabels.call(this, options, chartRect, bounds);
 
@@ -214,6 +220,58 @@
     }
   }
 
+  function drawHistrogram(chartRect, options, bounds, normalizedData, svg) {
+
+    var n = 5;
+    var factor = 0.55;
+    var i;
+
+    var width = chartRect.width() / dimensions.display.length;
+    var HistogramMaxWidth = width * 0.55;
+    var height = (chartRect.height() / n);
+
+    console.log(bounds);
+    console.log(normalizedData);
+
+    var histogramSeries = svg.elem('g');
+    //histogramSeries.addClass(options.classNames.histogram);
+
+    dimensions.display.forEach(function (value, index) {
+      var posX = chartRect.x1 + width * index;
+
+      var step = (bounds[index].max - bounds[index].min + bounds[index].step) / 5;
+      var currDim = normalizedData[index];
+      var valueList = [];
+
+      console.log(step);
+
+      for(i = 0; i < n; i++) {
+        valueList[i] = 0;
+      }
+
+      console.log(valueList);
+      normalizedData.forEach(function(currData) {
+        var data = currData[index];
+        data -= bounds[index].min;
+
+        if(data <= 0) {
+          valueList[0] += 1;
+        } else {
+          valueList[Math.floor(data/step)] += 1;
+        }
+      });
+
+      for(i = 0; i < n; i++) {
+        var rect = histogramSeries.elem('rect', {
+          x: posX + 2,
+          y: chartRect.y2 + height*i,
+          width: width * factor * valueList[n - 1 - i] / normalizedData.length, //TODO
+          height: height
+        }, options.classNames.histogram);
+      }     
+    });
+  }
+
   function drawMean(chartRect, options, bounds, normalizedData, svg) {
     var n = dimensions.display.length;
     var i,j;
@@ -228,8 +286,8 @@
 
     // get mean
     for (i = 0; i < normalizedData.length; i++) {
-    entry = normalizedData[i];
-    for (j = 0; j < entry.length; j++) {
+      entry = normalizedData[i];
+      for (j = 0; j < entry.length; j++) {
         mean[j] += entry[j]; 
       }
     }
