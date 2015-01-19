@@ -99,6 +99,12 @@
   stroke-width: $ct-donut-width;
 }
 
+@mixin ct-chart-mono-series($ct-mean-line-width: $ct-mean-line-width, $ct-mean-stroke: $ct-mean-stroke) {
+  fill: none;
+  stroke-width: $ct-mean-line-width;
+  stroke: $ct-mean-stroke;
+}
+
 @mixin ct-chart-series-color($color) {
   .#{$ct-class-point}, .#{$ct-class-line}, .#{$ct-class-parallelCoordinates}, .#{$ct-class-bar}, .#{$ct-class-slice}.#{$ct-class-donut} {
     stroke: $color;
@@ -128,6 +134,10 @@
 
   .#{$ct-class-point} {
     @include ct-chart-point($ct-point-size, $ct-point-shape);
+  }
+
+  .#{$ct-class-mono-series} {
+    @include ct-chart-mono-series($ct-series-mono-line-width, $ct-series-mono-color);
   }
 
   .#{$ct-class-line} {

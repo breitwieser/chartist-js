@@ -7,7 +7,7 @@ var data = {
 };
 
 var options = {
-  seriesBarDistance: 15
+  seriesBarDistance: 15,
 };
 
 var responsiveOptions = [

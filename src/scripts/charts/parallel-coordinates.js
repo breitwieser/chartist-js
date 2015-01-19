@@ -48,7 +48,7 @@
       chart: 'ct-chart-parallelCoordinates',
       label: 'ct-label',
       labelGroup: 'ct-labels',
-      series: 'ct-series',
+      series: 'ct-series-mono',
       line: 'ct-parallelCoordinates',
       mean: 'ct-mean',
       histogram: 'ct-histogram',
@@ -178,10 +178,12 @@
       }
 
       // Use series class from series data or if not set generate one
-      seriesGroups[r].addClass([
-        options.classNames.series,
-        (this.data.series[r].className || options.classNames.series + '-' + Chartist.alphaNumerate(r))
-      ].join(' '));
+      //seriesGroups[r].addClass([
+      //  options.classNames.series,
+      //  (this.data.series[r].className || options.classNames.series + '-' + Chartist.alphaNumerate(r))
+      //].join(' '));
+
+      seriesGroups[r].addClass(options.classNames.series);
 
       //draw connection lines for this series
       var lastDimIdx = -1;

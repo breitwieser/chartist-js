@@ -10,6 +10,7 @@ $ct-class-chart-pie: ct-chart-pie !default;
 $ct-class-chart-parallelCoordinates: ct-chart-parallelCoordinates !default;
 $ct-class-label: ct-label !default;
 $ct-class-series: ct-series !default;
+$ct-class-mono-series: ct-series-mono !default;
 $ct-class-line: ct-line !default;
 $ct-class-parallelCoordinates: ct-parallelCoordinates !default;
 $ct-class-mean: ct-mean !default; 
@@ -57,13 +58,17 @@ $ct-point-shape: round !default;
 $ct-area-opacity: 0.1 !default;
 
 // Mean properties
-$ct-mean-stroke: #00FF00 !default;
+$ct-mean-stroke: #006400 !default;
 $ct-mean-line-width: 4px !default;
 
 // Histogram properties
 $ct-histogram-stroke:#000000 !default;
 $ct-histogram-width:2px !default;
 $ct-histogram-opacity:0.7 !default;
+
+// Mono series
+$ct-series-mono-color: #d70206 !default;
+$ct-series-mono-line-width: 2px !default;
 
 // Bar chart bar width
 $ct-bar-width: 10px !default;

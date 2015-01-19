@@ -1,3 +1,5 @@
+
+
 var data = {
   labels: ['foo', 'bar', 'test', 'bla', 'pc-var'],
   series: [
@@ -13,10 +15,27 @@ var data = {
 };
 
 var options = {
-	showMean: false
+	showMean: true
 }
 
-new Chartist.ParallelCoordinates('.ct-chart', data, options);
+var responsiveOptions = [
+        ['screen and (max-width: 600px)', {
+            axisX: {
+                labelInterpolationFnc: function(value, index) {
+                    return ["foo", "bla", "pc-var"].indexOf(value) != -1 ? value : null;
+                }
+            }
+        }],
+        ['screen and (min-width: 600px)', {
+            axisX: {
+                labelInterpolationFnc: function(value, index) {
+                    return value;
+                }
+            }
+        }]
+    ];
+
+new Chartist.ParallelCoordinates('.ct-chart', data, options, responsiveOptions);
 
 /* Add a basic data series with six labels and values */
 
