@@ -3,6 +3,7 @@
 <meta charset="utf-8">
 <head>
     <link rel="stylesheet" type="text/css" href="./dist/chartist.min.css">
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="chart" style="width: 95%; height: 95%">
@@ -13,18 +14,29 @@
     <h2>Filtered Dimensions:</h2>
     <div class="ct-filter"></div>
 </section>
+<style>
+    .ct-filter ul
+    {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
 
+    .ct-filter ul li { display: inline; }
+
+    .ct-filter i {padding-right: 1em}
+</style>
 <script src="./dist/chartist.js"></script>
 <script type="text/javascript">
     var responsiveOptions = [
-        ['screen and (max-width: 600px)', {
+        ['screen and (max-width: 40em)', {
             axisX: {
                 labelInterpolationFnc: function(value, index) {
                     return ["foo", "bla", "pc-var"].indexOf(value) != -1 ? value : null;
                 }
             }
         }],
-        ['screen and (min-width: 600px)', {
+        ['screen and (min-width: 40em)', {
             axisX: {
                 labelInterpolationFnc: function(value, index) {
                     return value;
@@ -36,7 +48,7 @@
         filteredDimContainer: ".ct-filter"
     };
 
-    new Chartist.ParallelCoordinates('.ct-chart', {
+    var data = {
         labels: ['foo', 'bar', 'test', 'bla', 'pc-var'],
         series: [
             [12, 9, 7, 8, 5],
@@ -47,8 +59,13 @@
             [1, 4, 6, 2, 2],
             [11, 4, 3, 5, 4]
         ]
-    },options, responsiveOptions);
+    };
 
+    data.series.forEach(function (value, index) {
+        data.series[index].className = "ct-series-"+Chartist.alphaNumerate(index % 3);
+    });
+
+    new Chartist.ParallelCoordinates('.ct-chart', data, options, responsiveOptions);
 </script>
 
 </body>

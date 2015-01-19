@@ -479,7 +479,7 @@
    * front end developer to hide a dimension on a particular screen/device
    */
   function drawFilteredDimensions(options, supportsForeignObject){
-    var html="";
+    var html="<ul>";
     var that=this;
     var timestamp = Date.now();
 
@@ -489,8 +489,9 @@
 
     //create html
     dimensions.filtered.forEach(function(value, index) {
-      html += value+ " <a id=\""+timestamp+value+"\" href=\"#\">x</a><br>";
+      html += "<li>"+value+ " <a id=\""+timestamp+value+"\" href=\"#\"><i class=\"fa fa-close\"></i></a></li>";
     });
+    html += "</ul>";
 
     //get enclosing container and add html string
     var filterContainer = document.querySelector(options.filteredDimContainer);
