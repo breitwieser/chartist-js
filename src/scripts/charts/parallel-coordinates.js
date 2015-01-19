@@ -225,12 +225,13 @@
 
   function drawHistrogram(chartRect, options, bounds, normalizedData, svg) {
 
-    var n = 5;
+    var stepLength = 5;
+    var n = dimensions.display.length + dimensions.filtered.length;
     var factor = 0.55;
     var i;
 
     var width = chartRect.width() / dimensions.display.length;
-    var HistogramMaxWidth = width * 0.55;
+    var HistogramMaxWidth = width * factor;
     var height = (chartRect.height() / n);
 
     var histogramSeries = svg.elem('g');
@@ -239,17 +240,21 @@
     dimensions.display.forEach(function (value, index) {
       var posX = chartRect.x1 + width * index;
 
-      var step = (bounds[index].max - bounds[index].min + bounds[index].step) / 5;
-      var currDim = normalizedData[index];
+      var currentDimIdx = dimensions.dimensionIndex[index];
+
+      var step = (bounds[currentDimIdx].max - bounds[currentDimIdx].min + bounds[currentDimIdx].step) / stepLength;
+      
       var valueList = [];
 
       for(i = 0; i < n; i++) {
         valueList[i] = 0;
       }
 
+      console.log(valueList);
+
       normalizedData.forEach(function(currData) {
-        var data = currData[index];
-        data -= bounds[index].min;
+        var data = currData[currentDimIdx];
+        data -= bounds[currentDimIdx].min;
 
         if(data <= 0) {
           valueList[0] += 1;
@@ -258,11 +263,13 @@
         }
       });
 
-      for(i = 0; i < n; i++) {
+      console.log(index);      
+
+      for(i = 0; i < stepLength; i++) {
         var rect = histogramSeries.elem('rect', {
           x: posX + 2,
           y: chartRect.y2 + height*i,
-          width: width * factor * valueList[n - 1 - i] / normalizedData.length, //TODO
+          width: width * factor * valueList[stepLength - 1 - i] / normalizedData.length,
           height: height
         }, options.classNames.histogram);
       }     
@@ -270,7 +277,7 @@
   }
 
   function drawMean(chartRect, options, bounds, normalizedData, svg) {
-    var n = dimensions.display.length;
+    var n = dimensions.display.length + dimensions.filtered.length;
     var i,j;
     var entry;
     var mean = [];
@@ -281,12 +288,17 @@
       mean[i] = 0;
     }
 
+    //console.log(n);
+
     // get mean
     for (i = 0; i < normalizedData.length; i++) {
       entry = normalizedData[i];
-      for (j = 0; j < entry.length; j++) {
-        mean[j] += entry[j]; 
-      }
+
+      dimensions.display.forEach(function(value, index) {
+        currentDimIdx = dimensions.dimensionIndex[index];
+
+        mean[currentDimIdx] += entry[currentDimIdx];
+      });
     }
 
     for(i=0; i<n;i++) {
