@@ -1,4 +1,14 @@
 sections:
+  - title: Presentation Barchart
+    level: 3
+    items:
+      - type: live-example
+        data:
+          title: Simple Barchart with rotated labels
+          level: 4
+          id: example-bar-rotated
+          classes: ct-golden-section
+          intro: An example of a simple bar chart with rotated labels (45 degrees).
   - title: Line chart examples
     level: 3
     items:

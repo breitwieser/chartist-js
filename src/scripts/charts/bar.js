@@ -27,7 +27,7 @@
       },
       showLabel: true,
       showGrid: true,
-      rotateLabels: true,
+      rotateLabels: false,
       labelInterpolationFnc: Chartist.noop,
       scaleMinSpace: 20
     },
