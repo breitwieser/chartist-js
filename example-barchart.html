@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head>
+    <link rel="stylesheet" type="text/css" href="./dist/chartist.min.css">
+</head>
+<body>
+<div class="chart" style="width: 95%; height: 95%">
+    <div class="ct-chart ct-golden-section"></div>
+</div>
+
+
+<script src="./dist/chartist.js"></script>
+<script type="text/javascript">
+    var responsiveOptions = [
+        ['screen and (max-width: 5in)', {
+            rotate: true
+        }],
+        ['screen and (min-width: 5in)', {
+            rotate: false
+        }]
+    ];
+
+    new Chartist.Bar('.ct-chart', {
+        labels: ['testlabel1', 'test2', 'testlabel3', '4'],
+        series: [
+            [60, 50, 20, 10],
+            [60, 50, 20, 10],
+            [60, 50, 20, 10]
+        ]
+    }, {
+        chartPadding: 20,
+        seriesBarDistance: 10,
+        axisX: {
+            offset: 80
+        },
+        axisY: {
+            offset: 50,
+            labelInterpolationFnc: function(value) {
+                return value + '\' CHF'
+            },
+            scaleMinSpace: 15
+        }
+    }, responsiveOptions);
+</script>
+
+</body>
+</html>
