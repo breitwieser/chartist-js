@@ -38,6 +38,7 @@
     showArea: false,
     showMean: true,
     showHistogram: true,
+    histogramPartition: 5,
     areaBase: 0,
     lineSmooth: true,
     low: undefined,
@@ -97,15 +98,15 @@
     drawDataRecords.call(this, seriesGroups, options, chartRect, bounds, normalizedData);
 
     if(options.showMean) {
-      drawMean(chartRect, options, bounds, normalizedData, this.svg);
+      drawMean(chartRect, options, bounds, normalizedData, this);
     }    
-    
-    if(options.showHistogram) {
-      drawHistrogram(chartRect, options, bounds, normalizedData, this.svg);
-    }
 
     //draw grid, axis and labels
     drawAxisGridsLabels.call(this, options, chartRect, bounds);
+
+    if(options.showHistogram) {
+      drawHistogram(chartRect, options, bounds, normalizedData, this);
+    }
 
     this.eventEmitter.emit('created', {
       bounds: bounds,
@@ -223,18 +224,17 @@
     }
   }
 
-  function drawHistrogram(chartRect, options, bounds, normalizedData, svg) {
+  function drawHistogram(chartRect, options, bounds, normalizedData, that) {
 
-    var stepLength = 5;
-    var n = dimensions.display.length + dimensions.filtered.length;
+    var numSteps = options.histogramPartition;
     var factor = 0.55;
     var i;
 
     var width = chartRect.width() / dimensions.display.length;
     var HistogramMaxWidth = width * factor;
-    var height = (chartRect.height() / n);
+    var height = (chartRect.height() / numSteps);
 
-    var histogramSeries = svg.elem('g');
+    var histogramSeries = that.svg.elem('g');
     //histogramSeries.addClass(options.classNames.histogram);
 
     dimensions.display.forEach(function (value, index) {
@@ -242,15 +242,15 @@
 
       var currentDimIdx = dimensions.dimensionIndex[index];
 
-      var step = (bounds[currentDimIdx].max - bounds[currentDimIdx].min + bounds[currentDimIdx].step) / stepLength;
+      var step = (bounds[currentDimIdx].max - bounds[currentDimIdx].min + bounds[currentDimIdx].step) / numSteps;
       
+      console.log(step);
+
       var valueList = [];
 
-      for(i = 0; i < n; i++) {
+      for(i = 0; i < numSteps; i++) {
         valueList[i] = 0;
       }
-
-      console.log(valueList);
 
       normalizedData.forEach(function(currData) {
         var data = currData[currentDimIdx];
@@ -263,20 +263,39 @@
         }
       });
 
-      console.log(index);      
+      for(i = 0; i < numSteps; i++) {
 
-      for(i = 0; i < stepLength; i++) {
-        var rect = histogramSeries.elem('rect', {
-          x: posX + 2,
-          y: chartRect.y2 + height*i,
-          width: width * factor * valueList[stepLength - 1 - i] / normalizedData.length,
-          height: height
-        }, options.classNames.histogram);
+        var val = valueList[numSteps - 1 - i];
+        var l1 = (bounds[currentDimIdx].min + step * (numSteps - 1 - i)) + ' - ';
+        var l2 = (bounds[currentDimIdx].min + step * (numSteps - i)) + ":";
+        var label =  l1.concat(l2);
+        if(val > 0) {
+          var rect = histogramSeries.elem('rect', {
+            x: posX + 2,
+            y: chartRect.y2 + height*i,
+            width: width * factor * val / normalizedData.length,
+            height: height
+          }, options.classNames.histogram).attr({
+            'value': val,
+            'label': label
+          }, Chartist.xmlNs.uri);
+
+          that.eventEmitter.emit('draw', {
+            type: 'rect',
+            index: numSteps - 1 - i,
+            group: histogramSeries,
+            element: rect,
+            x1: rect.x,
+            y1: rect.y,
+            x2: rect.x + rect.width,
+            y2: rect.y + rect.height
+          });
+        }
       }     
     });
   }
 
-  function drawMean(chartRect, options, bounds, normalizedData, svg) {
+  function drawMean(chartRect, options, bounds, normalizedData, that) {
     var n = dimensions.display.length + dimensions.filtered.length;
     var i,j;
     var entry;
@@ -305,7 +324,7 @@
       mean[i] /= normalizedData.length;
     }
 
-    var meanSeries = svg.elem('g');
+    var meanSeries = that.svg.elem('g');
 
     dimensions.display.forEach(function(value, index) {
         
