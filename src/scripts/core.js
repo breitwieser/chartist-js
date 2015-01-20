@@ -467,9 +467,6 @@ var Chartist = {
           // add rotation for labels by adding css class
           classnames = [options.classNames.label, options.classNames.horizontal,
                         options.classNames.rotateLabelX].join(' ');
-
-          // add some space at the bottom
-          $('.ct-chart').css('margin-bottom','0.0em');
         }
 
         var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
