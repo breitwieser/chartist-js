@@ -266,9 +266,14 @@
       for(i = 0; i < numSteps; i++) {
 
         var val = valueList[numSteps - 1 - i];
-        var l1 = (bounds[currentDimIdx].min + step * (numSteps - 1 - i)) + ' - ';
-        var l2 = (bounds[currentDimIdx].min + step * (numSteps - i)) + ":";
-        var label =  l1.concat(l2);
+
+        var l1 = (bounds[currentDimIdx].min + step * (numSteps - 1 - i));
+        var l2 = (bounds[currentDimIdx].min + step * (numSteps - i));
+
+        var l1_str =  l1.toFixed(2) + ' - ';
+        var l2_str = l2.toFixed(2) +  ":";
+
+        var label =  l1_str.concat(l2_str);
         if(val > 0) {
           var rect = histogramSeries.elem('rect', {
             x: posX + 2,
