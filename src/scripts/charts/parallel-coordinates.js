@@ -9,7 +9,7 @@
 
   //TODO adjust options to parallel coordinates - copied from line chart
   var defaultOptions = {
-    filteredDimContainer: undefined, //
+    selectDisplayedDimContainer: undefined, //
     axisX: {
       offset: 30,
       labelOffset: {
@@ -65,8 +65,8 @@
   var dimensions = {
     display: [],          //labels of the displayed dimensions
     dimensionIndex: [],   //index of the displayed dimension
-    filtered: [],         //labels of dimensions that are not rendered in the chart
-    filterRemoved: []     //labels of dimensions that the user wants to see although they have been filtered out at first
+    show: [],             //labels of dimensions that the user wants to see although they have been filtered out previously
+    hide: []              //labels of dimensions that the user wants to hide although they have been displayed previously
   };
 
   function createChart(options) {
@@ -77,7 +77,7 @@
     // Create new svg object
     this.svg = Chartist.createSvg(this.container, options.width, options.height, options.classNames.chart);
 
-    //determine displayed/filtered dimensions; stores result in dimensions
+    //determine displayed dimensions; stores result in dimensions object
     determineDisplayedDimensions.call(this, options);
 
     // initialize bounds
@@ -88,8 +88,8 @@
       return;
     }
 
-    //display dimensions that have been filtered out and give the user the option to see them
-    drawFilteredDimensions.call(this, options, false);
+    //display menu that gives the user the ability to show / hide any dimension
+    drawSelectDisplayedDimMenu.call(this, options, false);
 
     // create chart rect
     var chartRect = createChartRect.call(this, options);
@@ -133,25 +133,25 @@
   /**
    * Determines which dimensions should be displayed and which ones are filtered out
    * dimensions are filtered by using axisX labelInterpolationFnc inside responsiveOptions - this default filtering behaviour
-   * is specified by the front end devleoper.
-   * Dimensions that are filtered out are later shown to the user, who can then decide if he wants to see them
+   * is specified by the front end develeoper.
+   * In addition the user can show / hide dimensions using checkboxes in a separate menu - @see: drawSelectDisplayedDimMenu
    *
    * @param options
    */
   function determineDisplayedDimensions(options) {
     dimensions.display = [];
     dimensions.dimensionIndex = [];
-    dimensions.filtered = [];
 
     //determine number of displayed labels
     this.data.labels.forEach(function (value, index) {
       var interpolatedValue = options.axisX.labelInterpolationFnc(value, index);
-      if (!interpolatedValue && interpolatedValue !== 0 && dimensions.filterRemoved.indexOf(value) === -1) {
-        dimensions.filtered.push(value);
+      if (!interpolatedValue && interpolatedValue !== 0 && dimensions.show.indexOf(value) === -1) {
         return;
       }
-      dimensions.display.push(value);
-      dimensions.dimensionIndex.push(index);
+      if(dimensions.hide.indexOf(value) === -1) {
+        dimensions.display.push(value);
+        dimensions.dimensionIndex.push(index);
+      }
     });
   }
 
@@ -296,7 +296,7 @@
   }
 
   function drawMean(chartRect, options, bounds, normalizedData, that) {
-    var n = dimensions.display.length + dimensions.filtered.length;
+    var n = that.data.labels.length;
     var i,j;
     var entry;
     var mean = [];
@@ -507,33 +507,52 @@
   };
 
   /**
-   * this function draws a menu that gives the user the option to display a dimension
-   * if it has been hidden through responsiveOptions -> overrides the decision of the
-   * front end developer to hide a dimension on a particular screen/device
+   * this function draws a menu that gives the user the option to show or hide any dimension
+   * -> gives the user the ability to override the decision of the front end developer to hide
+   * a dimension on a particular screen/device
    */
-  function drawFilteredDimensions(options, supportsForeignObject){
+  function drawSelectDisplayedDimMenu(options, supportsForeignObject){
     var html="<ul>";
     var that=this;
     var timestamp = Date.now();
+    var checked = "";
 
-    if (typeof options.filteredDimContainer === 'undefined') {
+    if (typeof options.selectDisplayedDimContainer === 'undefined') {
       return;
     }
 
     //create html
-    dimensions.filtered.forEach(function(value, index) {
-      html += "<li>"+value+ " <a id=\""+timestamp+value+"\" href=\"#\"><i class=\"fa fa-close\"></i></a></li>";
+    this.data.labels.forEach(function(value, index) {
+      checked = dimensions.display.indexOf(value) !== -1 ? "checked" : "";
+      html += "<li><input id=\""+timestamp+value+"\" type=\"checkbox\" "+checked+">"+value+"</li>";
     });
     html += "</ul>";
 
     //get enclosing container and add html string
-    var filterContainer = document.querySelector(options.filteredDimContainer);
+    var filterContainer = document.querySelector(options.selectDisplayedDimContainer);
     filterContainer.innerHTML = html;
 
-    //attach click event handler
-    dimensions.filtered.forEach(function(value, index){
-      document.getElementById(timestamp+value).addEventListener("click", function(e){
-        dimensions.filterRemoved.push(value);
+    //attach event handler
+    this.data.labels.forEach(function(value, index){
+      document.getElementById(timestamp+value).addEventListener("change", function(e){
+
+        var i = -1;
+        var add = [];
+        var remove = [];
+        if(e.target.checked) {
+          add = dimensions.show;
+          remove = dimensions.hide;
+        } else{
+          add = dimensions.hide;
+          remove = dimensions.show;
+        }
+
+        i = remove.indexOf(value);
+        if(i !== -1){
+          remove.splice(i, 1);
+        } else{
+          add.push(value);
+        }
         that.update();
       });
     });

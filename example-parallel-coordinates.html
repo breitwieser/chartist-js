@@ -3,7 +3,6 @@
 <meta charset="utf-8">
 <head>
     <link rel="stylesheet" type="text/css" href="./dist/chartist.min.css">
-    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
 <div class="chart" style="width: 95%; height: 95%">
@@ -22,9 +21,11 @@
         list-style-type: none;
     }
 
-    .ct-filter ul li { display: inline; }
+    .ct-filter ul li {
+        display: inline;
+        padding-right: 1em
+    }
 
-    .ct-filter i {padding-right: 1em}
 </style>
 <script src="./dist/chartist.js"></script>
 <script type="text/javascript">
@@ -45,7 +46,7 @@
         }]
     ];
     var options = {
-        filteredDimContainer: ".ct-filter"
+        selectDisplayedDimContainer: ".ct-filter"
     };
 
     var data = {
