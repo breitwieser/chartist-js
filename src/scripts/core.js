@@ -520,11 +520,8 @@
                 }
 
                 var labelPadder = chartRect.y1 - Math.abs(width);
-                //var padx1 = gridElement._node.x1.animVal.value;
-                //var padx2 = gridElement._node.x2.animVal.value;
-                //var pady1 = gridElement._node.y1.animVal.value;
-                //var pady2 = gridElement._node.y2.animVal.value;
-
+                var labelSpace = (chartRect.x1 - chartRect.x2) / data.labels.length;
+		var rotatedYPosition = (chartRect.x2 + index * labelSpace + labelSpace / 2) - 10;
 
 
 
@@ -546,7 +543,7 @@
                         console.log(chartRect.width());
                         labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
                             x: labelPadder - 5,
-                            y: labelPosition.x,
+                            y: rotatedYPosition, //labelPosition.x,
                             width: Math.abs(width),
                             height: Math.abs(height),
                             style: 'overflow: visible;'
