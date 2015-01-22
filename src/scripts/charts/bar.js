@@ -16,6 +16,7 @@
       },
       showLabel: true,
       showGrid: true,
+      rotateLabels: false,
       labelInterpolationFnc: Chartist.noop
     },
     axisY: {
@@ -26,6 +27,7 @@
       },
       showLabel: true,
       showGrid: true,
+      rotateLabels: false,
       labelInterpolationFnc: Chartist.noop,
       scaleMinSpace: 20
     },
@@ -44,7 +46,9 @@
       grid: 'ct-grid',
       gridGroup: 'ct-grids',
       vertical: 'ct-vertical',
-      horizontal: 'ct-horizontal'
+      horizontal: 'ct-horizontal',
+      labelRotationXAxis: 'ct-rotatedlabels-xaxis',
+      labelRotationYAxis: 'ct-rotatedlabels-yaxis'
     }
   };
 

@@ -1,4 +1,14 @@
 sections:
+  - title: New live examples
+    level: 3
+    items:
+      - type: live-example
+        data:
+          title: Rotated labels bar chart
+          level: 4
+          id: example-rotatedlabels-bar
+          classes: ct-golden-section
+          intro: A simple bar chart with rotated labels
   - title: Line chart examples
     level: 3
     items:
