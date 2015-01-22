@@ -405,6 +405,24 @@ var Chartist = {
     }
   };
 
+  Chartist.trimAxisLabels = function (label_classname) {
+
+    $(label_classname).each(function(i) {
+      // clone element to non visible inline span
+      var element = $(this)
+          .clone()
+          .css({display: 'inline', width: 'auto', visibility: 'hidden'})
+          .appendTo('body');
+
+      // do not wrap the label and cut it if it's overflowing
+      if( element.width() > $(this).width() ) {
+        $(this).css({'display':'block','white-space':'nowrap','overflow':'hidden','text-overflow':'ellipsis'});
+      }
+
+      element.remove();
+    });
+  } ;
+
   /**
    * Generate grid lines and labels for the x-axis into grid and labels group SVG elements
    *
@@ -465,6 +483,7 @@ var Chartist = {
           // add rotation for labels by adding css class
           classnames = [options.classNames.label, options.classNames.horizontal,
                         options.classNames.labelRotationXAxis].join(' ');
+
         }
 
           var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {

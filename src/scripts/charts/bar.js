@@ -71,7 +71,16 @@
       zeroPoint = Chartist.projectPoint(chartRect, bounds, [0], 0);
 
     Chartist.createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
+
+    if(options.axisX.rotateLabels) {
+      Chartist.trimAxisLabels('.ct-rotatedlabels-xaxis');
+    }
+
     Chartist.createYAxis(chartRect, bounds, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
+
+    if(options.axisX.rotateLabels) {
+      Chartist.trimAxisLabels('.ct-rotatedlabels-yaxis');
+    }
 
     // Draw the series
     // initialize series groups

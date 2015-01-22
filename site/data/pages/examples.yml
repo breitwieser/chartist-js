@@ -1,5 +1,5 @@
 sections:
-  - title: New live examples
+  - title: Rotated labels examples
     level: 3
     items:
       - type: live-example
@@ -9,6 +9,13 @@ sections:
           id: example-rotatedlabels-bar
           classes: ct-golden-section
           intro: A simple bar chart with rotated labels
+      - type: live-example
+        data:
+          title: Rotated labels bar chart special case
+          level: 4
+          id: example-rotatedlabels-bar-special
+          classes: ct-golden-section
+          intro: Special case on rotated labels, frontend developer needs to define margin and translation
   - title: Line chart examples
     level: 3
     items:
