@@ -10,25 +10,13 @@
     <!--<div class="ct-filter"></div>-->
 </div>
 <section>
-    <h2>Filtered Dimensions:</h2>
-    <div class="ct-filter"></div>
+    <br>
+    <div class="ct-select-dimensions"></div>
 </section>
-<style>
-    .ct-filter ul
-    {
-        margin: 0;
-        padding: 0;
-        list-style-type: none;
-    }
 
-    .ct-filter ul li {
-        display: inline;
-        padding-right: 1em
-    }
-
-</style>
 <script src="./dist/chartist.js"></script>
 <script type="text/javascript">
+
     var responsiveOptions = [
         ['screen and (max-width: 40em)', {
             axisX: {
@@ -46,7 +34,10 @@
         }]
     ];
     var options = {
-        selectDisplayedDimContainer: ".ct-filter"
+        selectDisplayedDimContainer: ".ct-select-dimensions",
+        showMean:false,
+        showHistogram: false,
+        useRulers: true
     };
 
     var data = {

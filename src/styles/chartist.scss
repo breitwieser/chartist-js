@@ -193,3 +193,32 @@
     }
   }
 }
+
+.ct-select-dimensions ul
+{
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.ct-select-dimensions ul li {
+  display: inline;
+  padding-right: 1em
+}
+
+.ct-ruler{
+  cursor: move;
+}
+
+.ct-unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.ct-series-mono:hover {
+  stroke: #f4c63d;
+}

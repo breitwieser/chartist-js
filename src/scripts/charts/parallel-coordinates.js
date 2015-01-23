@@ -10,6 +10,8 @@
   //TODO adjust options to parallel coordinates - copied from line chart
   var defaultOptions = {
     selectDisplayedDimContainer: undefined, //
+    rulerSize: 10,
+    useRulers: false,
     axisX: {
       offset: 30,
       labelOffset: {
@@ -66,7 +68,9 @@
     display: [],          //labels of the displayed dimensions
     dimensionIndex: [],   //index of the displayed dimension
     show: [],             //labels of dimensions that the user wants to see although they have been filtered out previously
-    hide: []              //labels of dimensions that the user wants to hide although they have been displayed previously
+    hide: [],             //labels of dimensions that the user wants to hide although they have been displayed previously
+    maxValues: [],        //stores the maximum values of each axis - data records with higher value at the particular axis are hidden
+    minValues: []         //stores the minimum values of each axis - data records with lower value at the particular axis are hidden
   };
 
   function createChart(options) {
@@ -160,7 +164,7 @@
     //adjust chart rect, because labels should be drawn on top of the chart
     var chartRectY1Old = chartRect.y1,
       chartHeight = (Chartist.stripUnit(options.height) || this.svg.height());
-    chartRect.y1 = chartHeight - chartRect.y2;
+    chartRect.y1 = chartHeight - chartRect.y2 - (options.useRulers ? 15 : 0);
     chartRect.y2 = chartHeight - chartRectY1Old;
     return chartRect;
   }
@@ -169,7 +173,7 @@
 
     for (var r = 0; r < this.data.series.length; r++) {
 
-      seriesGroups[r] = this.svg.elem('g');
+      seriesGroups[r] = this.svg.elem('g', {id:"dr"+r});
 
       // If the series is an object and contains a name we add a custom attribute
       if (this.data.series[r].name) {
@@ -222,6 +226,10 @@
         });
       });
     }
+
+    if(options.useRulers) {
+      filterDataRecords(this.data, bounds);
+    }
   }
 
   function drawHistogram(chartRect, options, bounds, normalizedData, that) {
@@ -244,8 +252,6 @@
 
       var step = (bounds[currentDimIdx].max - bounds[currentDimIdx].min + bounds[currentDimIdx].step) / numSteps;
       
-      console.log(step);
-
       var valueList = [];
 
       for(i = 0; i < numSteps; i++) {
@@ -307,8 +313,6 @@
       mean[i] = 0;
     }
 
-    //console.log(n);
-
     // get mean
     for (i = 0; i < normalizedData.length; i++) {
       entry = normalizedData[i];
@@ -354,7 +358,7 @@
     var labels = this.svg.elem('g').addClass(options.classNames.labelGroup),
       grid = this.svg.elem('g').addClass(options.classNames.gridGroup);
 
-    createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
+    createXAxis.call(this, chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject, bounds);
     var that = this;
     dimensions.display.forEach(function (value, index) {
       var boundsIndex = dimensions.dimensionIndex[index];
@@ -370,7 +374,6 @@
     return a[0].map(function (_, c) { return a.map(function (r) { return r[c]; }); });
   }
 
-  //TODO duplicated code of Core.createYAxis that has been modified slightly - maybe better to adjust function in core
   function createYAxis(chartRect, bounds, grid, labels, options, eventEmitter, supportsForeignObject, posX) {
     // Create Y-Axis
     bounds.values.forEach(function (value, index) {
@@ -409,7 +412,6 @@
       if (options.axisY.showLabel) {
         var labelPosition = {
           x: posX + options.chartPadding + options.axisY.labelOffset.x + (supportsForeignObject ? -10 : 0),
-//          y: pos + options.axisY.labelOffset.y + (supportsForeignObject ? -15 : 0)
           y: pos + (supportsForeignObject ? -15 : 0)
         };
 
@@ -442,12 +444,18 @@
     });
   };
 
-  function createXAxis(chartRect, data, grid, labels, options, eventEmitter, supportsForeignObject) {
+  function createXAxis(chartRect, data, grid, labels, options, eventEmitter, supportsForeignObject, bounds) {
     // Create X-Axis
+
+    var that = this;
     dimensions.display.forEach(function (value, index) {
       var width = chartRect.width() / dimensions.display.length,
         height = options.axisX.offset,
         pos = chartRect.x1 + width * index;
+
+      if(options.useRulers) {
+        drawRuler.call(that, grid, chartRect, pos, bounds, dimensions.dimensionIndex[index]);
+      }
 
       if (options.axisX.showGrid) {
         var gridElement = grid.elem('line', {
@@ -505,6 +513,127 @@
       }
     });
   };
+
+  function drawRuler(grid, chartRect, pos, bounds, dimIndex) {
+    var translateY = chartRect.y2;
+    if(dimensions.maxValues.length > dimIndex) {
+      translateY = Chartist.projectPoint(chartRect, bounds[dimIndex], [dimensions.maxValues[dimIndex]], 0).y;
+    }
+    var topRuler = grid.elem('path', {
+      d: ['M',
+          pos,
+          0,
+        'L',
+          pos - 10,//options.rulerSize,
+          -10,//options.rulerSize,
+        'L',
+          pos + 10,//,options.rulerSize,
+          -10,//options.rulerSize,
+        'z'].join(' '),
+      style: 'fill-opacity: 1',
+      transform: "matrix(1 0 0 1 0 "+translateY+")"
+    }, 'ct-ruler');
+
+    if(dimensions.maxValues.length <= dimIndex) {
+      dimensions.maxValues.push(Chartist.inverseProjectPoint(chartRect, bounds[dimIndex], {y:translateY}).y);
+    }
+
+    var minValue = dimensions.minValues.length > dimIndex ? dimensions.minValues[dimIndex] : bounds[dimIndex].min;
+    translateY = Chartist.projectPoint(chartRect, bounds[dimIndex], [minValue], 0).y;
+    var bottomRuler = grid.elem('path', {
+      d: ['M',
+          pos,
+          0,
+        'L',
+          pos - 10,//options.rulerSize,
+          10,//options.rulerSize,
+        'L',
+          pos + 10,//options.rulerSize,
+          10,//options.rulerSize,
+        'z'].join(' '),
+      style: 'fill-opacity: 1',
+      transform: "matrix(1 0 0 1 0 "+translateY+")"
+    }, 'ct-ruler');
+
+    if(dimensions.minValues.length <= dimIndex) {
+      dimensions.minValues.push(bounds[dimIndex].min);
+    }
+
+    //make elements draggable
+
+    var svgNode = grid.parent()._node;
+
+    function getYCoordinate(element) {
+      var matrix = element.getAttributeNS(null, "transform").slice(7, -1).split(' ');
+      return parseFloat(matrix[5]);
+    }
+
+    var onMoveAction = function(draggedElem, dx, dy) {
+
+      var min = chartRect.y2;
+      var max = getYCoordinate(bottomRuler._node);
+
+      if(draggedElem === bottomRuler._node) {
+        min = getYCoordinate(topRuler._node);
+        max = chartRect.y1;
+      }
+
+      var currentMatrix = draggedElem.getAttributeNS(null, "transform").slice(7, -1).split(' ');
+      currentMatrix[5] = parseFloat(currentMatrix[5]) + dy;
+
+      if(currentMatrix[5] < min){
+        currentMatrix[5] = min;
+      } else if (currentMatrix[5] > max) {
+        currentMatrix[5] = max;
+      }
+
+      var newMatrix = "matrix(" + currentMatrix.join(' ') + ")";
+      draggedElem.setAttributeNS(null, "transform", newMatrix);
+    };
+
+    var svg = this.svg;
+    var data = this.data;
+    var onReleaseAction = function(draggedElem) {
+
+      //convert pixels into axis value
+      var pixel = getYCoordinate(draggedElem);
+      if(draggedElem === topRuler._node) {
+        dimensions.maxValues[dimIndex] = Chartist.inverseProjectPoint(chartRect, bounds[dimIndex], {y: pixel}).y;
+      } else if(draggedElem === bottomRuler._node) {
+        dimensions.minValues[dimIndex] = Chartist.inverseProjectPoint(chartRect, bounds[dimIndex], {y: pixel}).y;
+      }
+
+      filterDataRecords(data, bounds);
+    };
+
+    Chartist.makeDraggable(topRuler._node, svgNode, onMoveAction, onReleaseAction);
+    Chartist.makeDraggable(bottomRuler._node, svgNode, onMoveAction, onReleaseAction);
+  }
+
+  /**
+   * hides data records that are outside an allowed axis value range
+   *
+   * @param data
+   * @param bounds
+   */
+  function filterDataRecords(data, bounds) {
+
+    data.series.forEach(function(dataRecord, index) {
+      var hide = false;
+
+      //check all dimensions that are displayed currently
+      dimensions.dimensionIndex.forEach(function(dimIndex) {
+        var min = dimensions.minValues[dimIndex];
+        var max = dimensions.maxValues[dimIndex];
+        if(dataRecord[dimIndex] < min || dataRecord[dimIndex] > max) {
+          hide = true;
+        }
+      });
+
+      var style = hide ? "display:none" : "";
+      document.getElementById("dr"+index).setAttribute("style", style);
+    });
+  }
 
   /**
    * this function draws a menu that gives the user the option to show or hide any dimension
