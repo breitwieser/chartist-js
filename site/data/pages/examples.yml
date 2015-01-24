@@ -1,4 +1,14 @@
 sections:
+  - title: Custom examples
+    level: 3
+    items:
+      - type: live-example
+        data:
+          title: Rotated bar chart
+          level: 4
+          id: example-bar-rotated
+          classes: ct-golden-section
+          intro: An example of a simple rotated bar chart
   - title: Line chart examples
     level: 3
     items:
