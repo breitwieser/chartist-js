@@ -9,7 +9,9 @@
 
   //TODO adjust options to parallel coordinates - copied from line chart
   var defaultOptions = {
-    filteredDimContainer: undefined, //
+    selectDisplayedDimContainer: undefined, //
+    rulerSize: 10,
+    useRulers: false,
     axisX: {
       offset: 30,
       labelOffset: {
@@ -65,8 +67,10 @@
   var dimensions = {
     display: [],          //labels of the displayed dimensions
     dimensionIndex: [],   //index of the displayed dimension
-    filtered: [],         //labels of dimensions that are not rendered in the chart
-    filterRemoved: []     //labels of dimensions that the user wants to see although they have been filtered out at first
+    show: [],             //labels of dimensions that the user wants to see although they have been filtered out previously
+    hide: [],             //labels of dimensions that the user wants to hide although they have been displayed previously
+    maxValues: [],        //stores the maximum values of each axis - data records with higher value at the particular axis are hidden
+    minValues: []         //stores the minimum values of each axis - data records with lower value at the particular axis are hidden
   };
 
   function createChart(options) {
@@ -77,7 +81,7 @@
     // Create new svg object
     this.svg = Chartist.createSvg(this.container, options.width, options.height, options.classNames.chart);
 
-    //determine displayed/filtered dimensions; stores result in dimensions
+    //determine displayed dimensions; stores result in dimensions object
     determineDisplayedDimensions.call(this, options);
 
     // initialize bounds
@@ -88,8 +92,8 @@
       return;
     }
 
-    //display dimensions that have been filtered out and give the user the option to see them
-    drawFilteredDimensions.call(this, options, false);
+    //display menu that gives the user the ability to show / hide any dimension
+    drawSelectDisplayedDimMenu.call(this, options, false);
 
     // create chart rect
     var chartRect = createChartRect.call(this, options);
@@ -133,25 +137,25 @@
   /**
    * Determines which dimensions should be displayed and which ones are filtered out
    * dimensions are filtered by using axisX labelInterpolationFnc inside responsiveOptions - this default filtering behaviour
-   * is specified by the front end devleoper.
-   * Dimensions that are filtered out are later shown to the user, who can then decide if he wants to see them
+   * is specified by the front end develeoper.
+   * In addition the user can show / hide dimensions using checkboxes in a separate menu - @see: drawSelectDisplayedDimMenu
    *
    * @param options
    */
   function determineDisplayedDimensions(options) {
     dimensions.display = [];
     dimensions.dimensionIndex = [];
-    dimensions.filtered = [];
 
     //determine number of displayed labels
     this.data.labels.forEach(function (value, index) {
       var interpolatedValue = options.axisX.labelInterpolationFnc(value, index);
-      if (!interpolatedValue && interpolatedValue !== 0 && dimensions.filterRemoved.indexOf(value) === -1) {
-        dimensions.filtered.push(value);
+      if (!interpolatedValue && interpolatedValue !== 0 && dimensions.show.indexOf(value) === -1) {
         return;
       }
-      dimensions.display.push(value);
-      dimensions.dimensionIndex.push(index);
+      if(dimensions.hide.indexOf(value) === -1) {
+        dimensions.display.push(value);
+        dimensions.dimensionIndex.push(index);
+      }
     });
   }
 
@@ -160,7 +164,7 @@
     //adjust chart rect, because labels should be drawn on top of the chart
     var chartRectY1Old = chartRect.y1,
       chartHeight = (Chartist.stripUnit(options.height) || this.svg.height());
-    chartRect.y1 = chartHeight - chartRect.y2;
+    chartRect.y1 = chartHeight - chartRect.y2 - (options.useRulers ? 15 : 0);
     chartRect.y2 = chartHeight - chartRectY1Old;
     return chartRect;
   }
@@ -169,7 +173,7 @@
 
     for (var r = 0; r < this.data.series.length; r++) {
 
-      seriesGroups[r] = this.svg.elem('g');
+      seriesGroups[r] = this.svg.elem('g', {id:"dr"+r});
 
       // If the series is an object and contains a name we add a custom attribute
       if (this.data.series[r].name) {
@@ -222,6 +226,10 @@
         });
       });
     }
+
+    if(options.useRulers) {
+      filterDataRecords(this.data, bounds);
+    }
   }
 
   function drawHistogram(chartRect, options, bounds, normalizedData, that) {
@@ -244,8 +252,6 @@
 
       var step = (bounds[currentDimIdx].max - bounds[currentDimIdx].min + bounds[currentDimIdx].step) / numSteps;
       
-      console.log(step);
-
       var valueList = [];
 
       for(i = 0; i < numSteps; i++) {
@@ -266,9 +272,14 @@
       for(i = 0; i < numSteps; i++) {
 
         var val = valueList[numSteps - 1 - i];
-        var l1 = (bounds[currentDimIdx].min + step * (numSteps - 1 - i)) + ' - ';
-        var l2 = (bounds[currentDimIdx].min + step * (numSteps - i)) + ":";
-        var label =  l1.concat(l2);
+
+        var l1 = (bounds[currentDimIdx].min + step * (numSteps - 1 - i));
+        var l2 = (bounds[currentDimIdx].min + step * (numSteps - i));
+
+        var l1_str =  l1.toFixed(2) + ' - ';
+        var l2_str = l2.toFixed(2) +  ":";
+
+        var label =  l1_str.concat(l2_str);
         if(val > 0) {
           var rect = histogramSeries.elem('rect', {
             x: posX + 2,
@@ -296,7 +307,7 @@
   }
 
   function drawMean(chartRect, options, bounds, normalizedData, that) {
-    var n = dimensions.display.length + dimensions.filtered.length;
+    var n = that.data.labels.length;
     var i,j;
     var entry;
     var mean = [];
@@ -306,8 +317,6 @@
     for(i=0; i<n; i++) {
       mean[i] = 0;
     }
-
-    //console.log(n);
 
     // get mean
     for (i = 0; i < normalizedData.length; i++) {
@@ -354,7 +363,7 @@
     var labels = this.svg.elem('g').addClass(options.classNames.labelGroup),
       grid = this.svg.elem('g').addClass(options.classNames.gridGroup);
 
-    createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
+    createXAxis.call(this, chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject, bounds);
     var that = this;
     dimensions.display.forEach(function (value, index) {
       var boundsIndex = dimensions.dimensionIndex[index];
@@ -370,7 +379,6 @@
     return a[0].map(function (_, c) { return a.map(function (r) { return r[c]; }); });
   }
 
-  //TODO duplicated code of Core.createYAxis that has been modified slightly - maybe better to adjust function in core
   function createYAxis(chartRect, bounds, grid, labels, options, eventEmitter, supportsForeignObject, posX) {
     // Create Y-Axis
     bounds.values.forEach(function (value, index) {
@@ -409,7 +417,6 @@
       if (options.axisY.showLabel) {
         var labelPosition = {
           x: posX + options.chartPadding + options.axisY.labelOffset.x + (supportsForeignObject ? -10 : 0),
-//          y: pos + options.axisY.labelOffset.y + (supportsForeignObject ? -15 : 0)
           y: pos + (supportsForeignObject ? -15 : 0)
         };
 
@@ -442,12 +449,18 @@
     });
   };
 
-  function createXAxis(chartRect, data, grid, labels, options, eventEmitter, supportsForeignObject) {
+  function createXAxis(chartRect, data, grid, labels, options, eventEmitter, supportsForeignObject, bounds) {
     // Create X-Axis
+
+    var that = this;
     dimensions.display.forEach(function (value, index) {
       var width = chartRect.width() / dimensions.display.length,
         height = options.axisX.offset,
         pos = chartRect.x1 + width * index;
+
+      if(options.useRulers) {
+        drawRuler.call(that, grid, chartRect, pos, bounds, dimensions.dimensionIndex[index]);
+      }
 
       if (options.axisX.showGrid) {
         var gridElement = grid.elem('line', {
@@ -506,34 +519,174 @@
     });
   };
 
+  function drawRuler(grid, chartRect, pos, bounds, dimIndex) {
+    var translateY = chartRect.y2;
+    if(dimensions.maxValues.length > dimIndex) {
+      translateY = Chartist.projectPoint(chartRect, bounds[dimIndex], [dimensions.maxValues[dimIndex]], 0).y;
+    }
+    var topRuler = grid.elem('path', {
+      d: ['M',
+          pos,
+          0,
+        'L',
+          pos - 10,//options.rulerSize,
+          -10,//options.rulerSize,
+        'L',
+          pos + 10,//,options.rulerSize,
+          -10,//options.rulerSize,
+        'z'].join(' '),
+      style: 'fill-opacity: 1',
+      transform: "matrix(1 0 0 1 0 "+translateY+")"
+    }, 'ct-ruler');
+
+    if(dimensions.maxValues.length <= dimIndex) {
+      dimensions.maxValues.push(Chartist.inverseProjectPoint(chartRect, bounds[dimIndex], {y:translateY}).y);
+    }
+
+    var minValue = dimensions.minValues.length > dimIndex ? dimensions.minValues[dimIndex] : bounds[dimIndex].min;
+    translateY = Chartist.projectPoint(chartRect, bounds[dimIndex], [minValue], 0).y;
+    var bottomRuler = grid.elem('path', {
+      d: ['M',
+          pos,
+          0,
+        'L',
+          pos - 10,//options.rulerSize,
+          10,//options.rulerSize,
+        'L',
+          pos + 10,//options.rulerSize,
+          10,//options.rulerSize,
+        'z'].join(' '),
+      style: 'fill-opacity: 1',
+      transform: "matrix(1 0 0 1 0 "+translateY+")"
+    }, 'ct-ruler');
+
+    if(dimensions.minValues.length <= dimIndex) {
+      dimensions.minValues.push(bounds[dimIndex].min);
+    }
+
+    //make elements draggable
+
+    var svgNode = grid.parent()._node;
+
+    function getYCoordinate(element) {
+      var matrix = element.getAttributeNS(null, "transform").slice(7, -1).split(' ');
+      return parseFloat(matrix[5]);
+    }
+
+    var onMoveAction = function(draggedElem, dx, dy) {
+
+      var min = chartRect.y2;
+      var max = getYCoordinate(bottomRuler._node);
+
+      if(draggedElem === bottomRuler._node) {
+        min = getYCoordinate(topRuler._node);
+        max = chartRect.y1;
+      }
+
+      var currentMatrix = draggedElem.getAttributeNS(null, "transform").slice(7, -1).split(' ');
+      currentMatrix[5] = parseFloat(currentMatrix[5]) + dy;
+
+      if(currentMatrix[5] < min){
+        currentMatrix[5] = min;
+      } else if (currentMatrix[5] > max) {
+        currentMatrix[5] = max;
+      }
+
+      var newMatrix = "matrix(" + currentMatrix.join(' ') + ")";
+      draggedElem.setAttributeNS(null, "transform", newMatrix);
+    };
+
+    var svg = this.svg;
+    var data = this.data;
+    var onReleaseAction = function(draggedElem) {
+
+      //convert pixels into axis value
+      var pixel = getYCoordinate(draggedElem);
+      if(draggedElem === topRuler._node) {
+        dimensions.maxValues[dimIndex] = Chartist.inverseProjectPoint(chartRect, bounds[dimIndex], {y: pixel}).y;
+      } else if(draggedElem === bottomRuler._node) {
+        dimensions.minValues[dimIndex] = Chartist.inverseProjectPoint(chartRect, bounds[dimIndex], {y: pixel}).y;
+      }
+
+      filterDataRecords(data, bounds);
+    };
+
+    Chartist.makeDraggable(topRuler._node, svgNode, onMoveAction, onReleaseAction);
+    Chartist.makeDraggable(bottomRuler._node, svgNode, onMoveAction, onReleaseAction);
+  }
+
   /**
-   * this function draws a menu that gives the user the option to display a dimension
-   * if it has been hidden through responsiveOptions -> overrides the decision of the
-   * front end developer to hide a dimension on a particular screen/device
+   * hides data records that are outside an allowed axis value range
+   *
+   * @param data
+   * @param bounds
    */
-  function drawFilteredDimensions(options, supportsForeignObject){
+  function filterDataRecords(data, bounds) {
+
+    data.series.forEach(function(dataRecord, index) {
+      var hide = false;
+
+      //check all dimensions that are displayed currently
+      dimensions.dimensionIndex.forEach(function(dimIndex) {
+        var min = dimensions.minValues[dimIndex];
+        var max = dimensions.maxValues[dimIndex];
+        if(dataRecord[dimIndex] < min || dataRecord[dimIndex] > max) {
+          hide = true;
+        }
+      });
+
+      var style = hide ? "display:none" : "";
+      document.getElementById("dr"+index).setAttribute("style", style);
+    });
+  }
+
+  /**
+   * this function draws a menu that gives the user the option to show or hide any dimension
+   * -> gives the user the ability to override the decision of the front end developer to hide
+   * a dimension on a particular screen/device
+   */
+  function drawSelectDisplayedDimMenu(options, supportsForeignObject){
     var html="<ul>";
     var that=this;
     var timestamp = Date.now();
+    var checked = "";
 
-    if (typeof options.filteredDimContainer === 'undefined') {
+    if (typeof options.selectDisplayedDimContainer === 'undefined') {
       return;
     }
 
     //create html
-    dimensions.filtered.forEach(function(value, index) {
-      html += "<li>"+value+ " <a id=\""+timestamp+value+"\" href=\"#\"><i class=\"fa fa-close\"></i></a></li>";
+    this.data.labels.forEach(function(value, index) {
+      checked = dimensions.display.indexOf(value) !== -1 ? "checked" : "";
+      html += "<li><input id=\""+timestamp+value+"\" type=\"checkbox\" "+checked+">"+value+"</li>";
     });
     html += "</ul>";
 
     //get enclosing container and add html string
-    var filterContainer = document.querySelector(options.filteredDimContainer);
+    var filterContainer = document.querySelector(options.selectDisplayedDimContainer);
     filterContainer.innerHTML = html;
 
-    //attach click event handler
-    dimensions.filtered.forEach(function(value, index){
-      document.getElementById(timestamp+value).addEventListener("click", function(e){
-        dimensions.filterRemoved.push(value);
+    //attach event handler
+    this.data.labels.forEach(function(value, index){
+      document.getElementById(timestamp+value).addEventListener("change", function(e){
+
+        var i = -1;
+        var add = [];
+        var remove = [];
+        if(e.target.checked) {
+          add = dimensions.show;
+          remove = dimensions.hide;
+        } else{
+          add = dimensions.hide;
+          remove = dimensions.show;
+        }
+
+        i = remove.indexOf(value);
+        if(i !== -1){
+          remove.splice(i, 1);
+        } else{
+          add.push(value);
+        }
         that.update();
       });
     });

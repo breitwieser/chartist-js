@@ -586,6 +586,20 @@ var Chartist = {
     };
   };
 
+  /**
+   * inversion of the function projectPoint - calculates x and y values based on the position on the svg element
+   * @param chartRect
+   * @param bounds
+   * @param point
+   * @returns {{x: undefined, y: *}}
+   */
+  Chartist.inverseProjectPoint = function(chartRect, bounds, point) {
+    return{
+      x: undefined, //TODO implement
+      y: (chartRect.y1 - point.y)*(bounds.range + bounds.step) / chartRect.height() + bounds.min
+    };
+  };
+
   // TODO: With multiple media queries the handleMediaChange function is triggered too many times, only need one
   /**
    * Provides options handling functionality with callback for options changes triggered by responsive options and media query matches
@@ -689,6 +703,70 @@ var Chartist = {
     }
 
     return d;
+  };
+
+  /**
+   * convenient functions that makes the specified element draggable
+   *
+   * move and mouseOut event listener are attached to the svg element instead of the given element itself
+   * (solves issue of unwanted onmouseout event triggers on small draggable elements)
+   *
+   * inspired by: http://www.petercollingridge.co.uk/interactive-svg-components/draggable-svg-element
+   * @param elem
+   * @param svgNode
+   * @param {Function} onMoveAction
+   * @param {Function} onReleaseAction
+   */
+  Chartist.makeDraggable = function(elem, svgNode, onMoveAction, onReleaseAction){
+
+    function dragEventHandler(svgElem, onMoveAction){
+
+      var selectedElement = 0;
+      var currentX = 0;
+      var currentY = 0;
+
+      var selectElement = function (evt){
+        selectedElement = evt.target;
+        currentX = evt.clientX;
+        currentY = evt.clientY;
+
+        //prevent text selection - causes problems while dragging
+        var svgClass = svgElem.getAttribute("class");
+        svgElem.setAttribute("class", svgClass+ " ct-unselectable");
+
+        svgElem.addEventListener("mousemove", moveElement);
+        svgElem.addEventListener("mouseup", deselectElement);
+      };
+
+      var deselectElement =  function (evt) {
+        if (selectedElement != 0) {
+          svgElem.removeEventListener("mousemove", moveElement);
+          svgElem.removeEventListener("mouseup", deselectElement);
+
+          //allow text selection again
+          var svgClass = svgElem.getAttribute("class");
+          svgElem.setAttribute("class", svgClass.replace(" ct-unselectable", ""));
+
+          onReleaseAction(selectedElement);
+
+          selectedElement = 0;
+        }
+      };
+
+      var moveElement =  function (evt) {
+        var dx = evt.clientX - currentX;
+        var dy = evt.clientY - currentY;
+
+        onMoveAction(selectedElement, dx, dy);
+
+        currentX = evt.clientX;
+        currentY = evt.clientY;
+      };
+
+      return selectElement;
+    }
+
+    elem.addEventListener("mousedown", dragEventHandler(svgNode, onMoveAction));
   };
 
 }(window, document, Chartist));

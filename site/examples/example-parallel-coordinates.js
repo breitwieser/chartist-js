@@ -13,6 +13,7 @@ var data = {
 var options = {
 	showMean: true,
   showHistogram: true,
+  useRulers: true,
   histogramPartition: 10
 };
 
@@ -34,6 +35,9 @@ var responsiveOptions = [
     ];
 
 var $chart = $('.ct-chart');
+
+//create container for the dimension selection checkboxes
+$("<div class=\"ct-select-dimensions\"></div>").insertAfter($chart);
 
 var $toolTip = $chart
   .append('<div class="tooltip"></div>')
