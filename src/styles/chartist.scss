@@ -76,11 +76,12 @@
   stroke: $ct-mean-stroke;
 }
 
-@mixin ct-histogram($ct-histogram-stroke: $ct-histogram-stroke, $ct-histogram-width: $ct-histogram-width) {
+@mixin ct-histogram($ct-histogram-stroke: $ct-histogram-stroke, $ct-histogram-width: $ct-histogram-width, $ct-histogram-fill: $ct-histogram-fill) {
+  fill: $ct-histogram-fill;
+  fill-opacity: 0.2;
   stroke: $ct-histogram-stroke;
   stroke-width: $ct-histogram-width;
   stroke-opacity: 0.3;
-  fill-opacity: 0.0;
 }
 
 @mixin ct-chart-area($ct-area-opacity: $ct-area-opacity) {
@@ -152,7 +153,7 @@
   }
 
   .#{$ct-class-histogram} {
-    @include ct-histogram($ct-histogram-stroke, $ct-histogram-width);
+    @include ct-histogram($ct-histogram-stroke, $ct-histogram-width, $ct-histogram-fill);
   }
 
   .#{$ct-class-area} {
