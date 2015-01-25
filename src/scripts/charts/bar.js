@@ -56,12 +56,15 @@
 
             // Create new svg element
             if (!options.rotate) {
-                this.container.className = 'ct-chart ct-golden-section'; //this.quer
+		var className = this.container.className;
+		if(className.indexOf('-inverse') > -1)
+	           this.container.className = className.replace('-inverse', '');	
                 this.svg = Chartist.createSvg(this.container, options.width, options.height, options.classNames.chart);
             }
             else {
-                this.container.className = 'ct-chart ct-myown';
-                //this.container.clientHeight = 500;
+                var className = this.container.className;
+		if(className.indexOf('-inverse') == -1)
+	           this.container.className = className.concat('', '-inverse');
                 this.svg = Chartist.createSvg(this.container, options.width, options.height, options.classNames.chart);
             }
             // initialize bounds

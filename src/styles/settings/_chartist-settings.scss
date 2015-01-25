@@ -1,6 +1,9 @@
 // Scales for responsive SVG containers
-$ct-scales: ((1), (15/16), (8/9), (5/6), (4/5), (3/4), (2/3), (5/8), (1/1.618), (3/5), (9/16), (8/15), (1/2), (2/5), (3/8), (1/3), (1/4), (1.618/1)) !default;
-$ct-scales-names: (ct-square, ct-minor-second, ct-major-second, ct-minor-third, ct-major-third, ct-perfect-fourth, ct-perfect-fifth, ct-minor-sixth, ct-golden-section, ct-major-sixth, ct-minor-seventh, ct-major-seventh, ct-octave, ct-major-tenth, ct-major-eleventh, ct-major-twelfth, ct-double-octave, ct-myown) !default;
+$ct-scales: ((1), (15/16), (8/9), (5/6), (4/5), (3/4), (2/3), (5/8), (1/1.618), (3/5), (9/16), (8/15), (1/2), (2/5), (3/8), (1/3), (1/4),
+(16/15), (9/8), (6/5), (5/4), (4/3), (3/2), (8/5), (1.618/1) , (5/3), (16/9), (15/8), (2/1), (5/2), (8/3), (3/1), (4/1)) !default;
+$ct-scales-names: (ct-square, ct-minor-second, ct-major-second, ct-minor-third, ct-major-third, ct-perfect-fourth, ct-perfect-fifth, ct-minor-sixth, ct-golden-section, ct-major-sixth, ct-minor-seventh, ct-major-seventh, ct-octave, ct-major-tenth, ct-major-eleventh, ct-major-twelfth, ct-double-octave,
+ct-minor-second-inverse, ct-major-second-inverse, ct-minor-third-inverse, ct-major-third-inverse, ct-perfect-fourth-inverse, ct-perfect-fifth-inverse, ct-minor-sixth-inverse, ct-golden-section-inverse, 
+ ct-major-sixth-inverse, ct-minor-seventh-inverse, ct-major-seventh-inverse, ct-octave-inverse, ct-major-tenth-inverse, ct-major-eleventh-inverse, ct-major-twelfth-inverse, ct-double-octave-inverse) !default;
 
 // Class names to be used when generating CSS
 $ct-class-chart: ct-chart !default;
