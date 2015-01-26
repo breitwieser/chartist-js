@@ -517,7 +517,7 @@ var Chartist = {
         });
       }
 
-	   var labelPadder = chartRect.y1 - Math.abs(width);
+	   var labelPadder = chartRect.y1 - data.labels[index].length * 5.8;//Math.abs(width);
 	   var labelSpace = (chartRect.x1 - chartRect.x2) / data.labels.length;
 	   var rotatedYPosition = (chartRect.x2 + index * labelSpace + labelSpace / 2) - 10;
 	    
