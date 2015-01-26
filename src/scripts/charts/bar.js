@@ -31,6 +31,7 @@
       labelInterpolationFnc: Chartist.noop,
       scaleMinSpace: 20
     },
+	rotate: false,
     width: undefined,
     height: undefined,
     high: undefined,
@@ -58,8 +59,18 @@
       normalizedData = Chartist.normalizeDataArray(Chartist.getDataArray(this.data), this.data.labels.length);
 
     // Create new svg element
-    this.svg = Chartist.createSvg(this.container, options.width, options.height, options.classNames.chart);
-
+    if (!options.rotate) {
+		var className = this.container.className;
+		if(className.indexOf('-inverse') > -1)
+	        this.container.className = className.replace('-inverse', '');	
+        this.svg = Chartist.createSvg(this.container, options.width, options.height, options.classNames.chart);
+    }
+    else {
+		var className = this.container.className;
+		if(className.indexOf('-inverse') == -1)
+	        this.container.className = className.concat('', '-inverse');
+        this.svg = Chartist.createSvg(this.container, options.width, options.height, options.classNames.chart);
+    }
     // initialize bounds
     bounds = Chartist.getBounds(this.svg, normalizedData, options, 0);
 
@@ -106,21 +117,41 @@
       ].join(' '));
 
       for(var j = 0; j < normalizedData[i].length; j++) {
-        var p = Chartist.projectPoint(chartRect, bounds, normalizedData[i], j),
-          bar;
-
+	  
+         if (!options.rotate) {   
+            var p = Chartist.projectPoint(chartRect, bounds, normalizedData[i], j),
+             bar;
+        }
+        else {
+            var p = Chartist.projectPointForRotate(chartRect, bounds, normalizedData[i], j),
+              bar;
+        }
         // Offset to center bar between grid lines and using bi-polar offset for multiple series
         // TODO: Check if we should really be able to add classes to the series. Should be handles with Sass and semantic / specific selectors
-        p.x += periodHalfWidth + (biPol * options.seriesBarDistance);
+        if (!options.rotate)  //VX9
+            p.x += periodHalfWidth + (biPol * options.seriesBarDistance);
+        else
+            p.x += Math.abs(periodHalfWidth) + (biPol * options.seriesBarDistance);
 
-        bar = seriesGroups[i].elem('line', {
-          x1: p.x,
-          y1: zeroPoint.y,
-          x2: p.x,
-          y2: p.y
-        }, options.classNames.bar).attr({
-          'value': normalizedData[i][j]
-        }, Chartist.xmlNs.uri);
+        if (!options.rotate) {
+            bar = seriesGroups[i].elem('line', {
+                x1: p.x,
+                y1: zeroPoint.y,
+                x2: p.x,
+                y2: p.y
+            }, options.classNames.bar).attr({
+                'value': normalizedData[i][j]
+            }, Chartist.xmlNs.uri);
+        } else {
+            bar = seriesGroups[i].elem('line', {
+                x1: zeroPoint.y,
+                y1: p.x,
+                x2: p.y,
+                y2: p.x
+            }, options.classNames.bar).attr({
+                'value': normalizedData[i][3]
+            }, Chartist.xmlNs.uri);
+        }
 
         this.eventEmitter.emit('draw', {
           type: 'bar',

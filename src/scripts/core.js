@@ -368,23 +368,54 @@ var Chartist = {
    * @param {Object} options The Object that contains all the optional values for the chart
    * @return {Object} The chart rectangles coordinates inside the svg element plus the rectangles measurements
    */
-  Chartist.createChartRect = function (svg, options) {
-    var yOffset = options.axisY ? options.axisY.offset : 0,
-      xOffset = options.axisX ? options.axisX.offset : 0;
+        Chartist.createChartRect = function (svg, options) {
+            var yOffset = options.axisY ? options.axisY.offset : 0,
+              xOffset = options.axisX ? options.axisX.offset : 0;
 
-    return {
-      x1: options.chartPadding + yOffset,
-      y1: Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding),
-      x2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
-      y2: options.chartPadding,
-      width: function () {
-        return this.x2 - this.x1;
-      },
-      height: function () {
-        return this.y1 - this.y2;
-      }
-    };
-  };
+            if (!options.rotate) {
+                return {
+                    x1: options.chartPadding + yOffset,
+                    y1: Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding),
+                    x2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
+                    y2: options.chartPadding,
+                    width: function () {
+                        return this.x2 - this.x1;
+                    },
+                    height: function () {
+                        return this.y1 - this.y2;
+                    }
+                };
+            } else {            
+                var testx1 = Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding);
+                if (testx1 < 180)
+                {
+                    return {
+                        y1: options.chartPadding + yOffset,
+                        x1: 180,
+                        y2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
+                        x2: options.chartPadding,
+                        width: function () {
+                            return this.x2 - this.x1;
+                        },
+                        height: function () {
+                            return this.y1 - this.y2;
+                        }
+                    };
+                }            
+                return {
+                    y1: options.chartPadding + yOffset,
+                    x1: Math.max((Chartist.stripUnit(options.height) || svg.height()) - options.chartPadding - xOffset, options.chartPadding),
+                    y2: Math.max((Chartist.stripUnit(options.width) || svg.width()) - options.chartPadding, options.chartPadding + yOffset),
+                    x2: options.chartPadding,
+                    width: function () {
+                        return this.x2 - this.x1;
+                    },
+                    height: function () {
+                        return this.y1 - this.y2;
+                    }
+                };
+            }
+        };
 
   /**
    * Creates a label with text and based on support of SVG1.1 extensibility will use a foreignObject with a SPAN element or a fallback to a regular SVG text element.
@@ -438,24 +469,40 @@ var Chartist = {
   Chartist.createXAxis = function (chartRect, data, grid, labels, options, eventEmitter, supportsForeignObject) {
     // Create X-Axis
     data.labels.forEach(function (value, index) {
-      var interpolatedValue = options.axisX.labelInterpolationFnc(value, index),
+    if (!options.rotate) {                                                              
+        var interpolatedValue = options.axisX.labelInterpolationFnc(value, index),
+          width = chartRect.width() / data.labels.length,
+          height = options.axisX.offset,
+          pos = chartRect.x1 + width * index;
+    }
+    else {
+        var interpolatedValue = options.axisX.labelInterpolationFnc(value, index),
         width = chartRect.width() / data.labels.length,
         height = options.axisX.offset,
-        pos = chartRect.x1 + width * index;
-
+        pos = chartRect.x2 + Math.abs(width) * index;
+    }   
       // If interpolated value returns falsey (except 0) we don't draw the grid line
       if (!interpolatedValue && interpolatedValue !== 0) {
         return;
       }
 
       if (options.axisX.showGrid) {
-        var gridElement = grid.elem('line', {
-          x1: pos,
-          y1: chartRect.y1,
-          x2: pos,
-          y2: chartRect.y2
-        }, [options.classNames.grid, options.classNames.horizontal].join(' '));
-
+        if (!options.rotate) {
+            var gridElement = grid.elem('line', {
+                x1: pos,
+                y1: chartRect.y1,
+                x2: pos,
+                y2: chartRect.y2
+            }, [options.classNames.grid, options.classNames.horizontal].join(' '));
+        } else {
+            gridElement = grid.elem('line', {
+                x1: chartRect.y1,
+                y1: pos,
+                x2: chartRect.y2,
+                y2: pos
+            }, [options.classNames.grid, options.classNames.horizontal].join(' '));
+        }
+		
         // Event for grid draw
         eventEmitter.emit('draw', {
           type: 'grid',
@@ -470,6 +517,10 @@ var Chartist = {
         });
       }
 
+	   var labelPadder = chartRect.y1 - Math.abs(width);
+	   var labelSpace = (chartRect.x1 - chartRect.x2) / data.labels.length;
+	   var rotatedYPosition = (chartRect.x2 + index * labelSpace + labelSpace / 2) - 10;
+	    
       if (options.axisX.showLabel) {
         var labelPosition = {
           x: pos + options.axisX.labelOffset.x,
@@ -486,14 +537,25 @@ var Chartist = {
 
         }
 
-          var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
-          x: labelPosition.x,
-          y: labelPosition.y,
-          width: width,
-          height: height,
-          style: 'overflow: visible;'
-        }, classnames, supportsForeignObject);
-
+        if (!options.rotate) {
+            var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+                x: labelPosition.x,
+                y: labelPosition.y,
+                width: width,
+                height: height,
+                style: 'overflow: visible;'
+            }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+        } else {
+            console.log(chartRect.width());
+            labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+                x: labelPadder - 5,
+                y: rotatedYPosition, //labelPosition.x,
+                width: Math.abs(width),
+                height: Math.abs(height),
+                style: 'overflow: visible;'
+            }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+        }
+					
         eventEmitter.emit('draw', {
           type: 'label',
           axis: 'x',
@@ -530,6 +592,10 @@ var Chartist = {
   Chartist.createYAxis = function (chartRect, bounds, grid, labels, options, eventEmitter, supportsForeignObject) {
     // Create Y-Axis
     bounds.values.forEach(function (value, index) {
+	
+	if(options.rotate && (index % 3 != 0))  
+                   return;
+				   
       var interpolatedValue = options.axisY.labelInterpolationFnc(value, index),
         width = options.axisY.offset,
         height = chartRect.height() / bounds.values.length,
@@ -541,13 +607,21 @@ var Chartist = {
       }
 
       if (options.axisY.showGrid) {
-        var gridElement = grid.elem('line', {
-          x1: chartRect.x1,
-          y1: pos,
-          x2: chartRect.x2,
-          y2: pos
-        }, [options.classNames.grid, options.classNames.vertical].join(' '));
-
+        if (!options.rotate) {
+            var gridElement = grid.elem('line', {
+                x1: chartRect.x1,
+                y1: pos,
+                x2: chartRect.x2,
+                y2: pos
+            }, [options.classNames.grid, options.classNames.vertical].join(' '));
+        } else {
+            var gridElement = grid.elem('line', {
+                x1: pos,
+                y1: chartRect.x1,
+                x2: pos,
+                y2: chartRect.x2
+            }, [options.classNames.grid, options.classNames.vertical].join(' '));
+        }
         // Event for grid draw
         eventEmitter.emit('draw', {
           type: 'grid',
@@ -562,6 +636,8 @@ var Chartist = {
         });
       }
 
+	  var pady1 = gridElement._node.y1.animVal.value;
+	  
       if (options.axisY.showLabel) {
         var labelPosition = {
           x: options.chartPadding + options.axisY.labelOffset.x + (supportsForeignObject ? -10 : 0),
@@ -577,14 +653,24 @@ var Chartist = {
             options.classNames.labelRotationYAxis].join(' ');
         }
 
-        var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
-          x: labelPosition.x,
-          y: labelPosition.y,
-          width: width,
-          height: height,
-          style: 'overflow: visible;'
-        }, classnames, supportsForeignObject);
-
+        if (!options.rotate) {
+            var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+                x: labelPosition.x,
+                y: labelPosition.y,
+                width: width,
+                height: height,
+                style: 'overflow: visible;'
+            }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+        } else {
+            labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+                x: labelPosition.y,
+                y: pady1, //labelPosition.x,
+                width: Math.abs(10),
+                height: Math.abs(height),
+                style: 'overflow: visible;',
+            }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+        }
+		
         eventEmitter.emit('draw', {
           type: 'label',
           axis: 'y',
@@ -621,6 +707,13 @@ var Chartist = {
       x: chartRect.x1 + chartRect.width() / data.length * index,
       y: chartRect.y1 - chartRect.height() * (data[index] - bounds.min) / (bounds.range + bounds.step)
     };
+  };
+  
+  Chartist.projectPointForRotate = function (chartRect, bounds, data, index) {
+      return {
+          x: chartRect.x2 + Math.abs(chartRect.width()) / data.length * index,
+          y: chartRect.y1 - chartRect.height() * (data[index] - bounds.min) / (bounds.range + bounds.step)
+      };
   };
 
   /**
