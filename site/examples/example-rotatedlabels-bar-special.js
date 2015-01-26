@@ -20,5 +20,5 @@ new Chartist.Bar('.ct-chart', {
     }
 }).on('draw', function(data) {
         //$('.ct-chart').css({'margin-bottom':'70px'});
-        //$('.ct-rotatedlabels-xaxis').css({'transform':'translateY(30px) rotate(-45deg)'})
-    });
+        //$('.ct-rotatedlabels-xaxis').css({'transform':'translateY(40px) rotate(-45deg)'})
+});

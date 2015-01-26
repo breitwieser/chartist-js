@@ -18,6 +18,7 @@
       },
       showLabel: true,
       showGrid: true,
+      rotateLabels: false,
       labelInterpolationFnc: Chartist.noop
     },
     axisY: {
@@ -28,6 +29,7 @@
       },
       showLabel: true,
       showGrid: true,
+      rotateLabels: false,
       labelInterpolationFnc: Chartist.noop,
       scaleMinSpace: 20
     },
@@ -52,7 +54,9 @@
       grid: 'ct-grid',
       gridGroup: 'ct-grids',
       vertical: 'ct-vertical',
-      horizontal: 'ct-horizontal'
+      horizontal: 'ct-horizontal',
+      labelRotationXAxis: 'ct-rotatedlabels-xaxis',
+      labelRotationYAxis: 'ct-rotatedlabels-yaxis'
     }
   };
 
@@ -73,7 +77,16 @@
       grid = this.svg.elem('g').addClass(options.classNames.gridGroup);
 
     Chartist.createXAxis(chartRect, this.data, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
+
+    if(options.axisX.rotateLabels) {
+      Chartist.trimAxisLabels('.ct-rotatedlabels-xaxis');
+    }
+
     Chartist.createYAxis(chartRect, bounds, grid, labels, options, this.eventEmitter, this.supportsForeignObject);
+
+    if(options.axisX.rotateLabels) {
+      Chartist.trimAxisLabels('.ct-rotatedlabels-yaxis');
+    }
 
     // Draw the series
     // initialize series groups
