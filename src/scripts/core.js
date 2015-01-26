@@ -405,6 +405,24 @@ var Chartist = {
     }
   };
 
+  Chartist.trimAxisLabels = function (label_classname) {
+
+    $(label_classname).each(function(i) {
+      // clone element to non visible inline span
+      var element = $(this)
+          .clone()
+          .css({display: 'inline', width: 'auto', visibility: 'hidden'})
+          .appendTo('body');
+
+      // do not wrap the label and cut it if it's overflowing
+      if( element.width() > $(this).width() ) {
+        $(this).css({'display':'block','white-space':'nowrap','overflow':'hidden','text-overflow':'ellipsis'});
+      }
+
+      element.remove();
+    });
+  } ;
+
   /**
    * Generate grid lines and labels for the x-axis into grid and labels group SVG elements
    *
@@ -458,13 +476,23 @@ var Chartist = {
           y: chartRect.y1 + options.axisX.labelOffset.y + (supportsForeignObject ? 5 : 20)
         };
 
-        var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
+        // default case (ct-label ct-label-horizontal)
+        var classnames = [options.classNames.label, options.classNames.horizontal].join(' ');
+
+        if(options.axisX.rotateLabels) {
+          // add rotation for labels by adding css class
+          classnames = [options.classNames.label, options.classNames.horizontal,
+                        options.classNames.labelRotationXAxis].join(' ');
+
+        }
+
+          var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
           x: labelPosition.x,
           y: labelPosition.y,
           width: width,
           height: height,
           style: 'overflow: visible;'
-        }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+        }, classnames, supportsForeignObject);
 
         eventEmitter.emit('draw', {
           type: 'label',
@@ -540,13 +568,22 @@ var Chartist = {
           y: pos + options.axisY.labelOffset.y + (supportsForeignObject ? -15 : 0)
         };
 
+        // default case (ct-label ct-label-horizontal)
+        var classnames = [options.classNames.label, options.classNames.vertical].join(' ');
+
+        if(options.axisY.rotateLabels) {
+          // add rotation for labels by adding css class
+          classnames = [options.classNames.label, options.classNames.vertical,
+            options.classNames.labelRotationYAxis].join(' ');
+        }
+
         var labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
           x: labelPosition.x,
           y: labelPosition.y,
           width: width,
           height: height,
           style: 'overflow: visible;'
-        }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+        }, classnames, supportsForeignObject);
 
         eventEmitter.emit('draw', {
           type: 'label',

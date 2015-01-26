@@ -38,6 +38,16 @@
   text-align: $ct-text-align;
 }
 
+@mixin ct-chart-rotatedlabel-xaxis() {
+  transform-origin: 50% 0%;
+  transform: rotate(-45deg);
+}
+
+@mixin ct-chart-rotatedlabel-yaxis() {
+  transform-origin: 100% 50%;
+  transform: rotate(-45deg);
+}
+
 @mixin ct-chart-grid($ct-grid-color: $ct-grid-color, $ct-grid-width: $ct-grid-width, $ct-grid-dasharray: $ct-grid-dasharray) {
   stroke: $ct-grid-color;
   stroke-width: $ct-grid-width;
@@ -126,6 +136,14 @@
 
   .#{$ct-class-label}.#{$ct-class-vertical} {
     @include ct-chart-label($ct-text-color, $ct-text-size, $ct-vertical-text-align);
+  }
+
+  .#{$ct-class-label}.#{$ct-class-rotatedlabel-xaxis} {
+    @include ct-chart-rotatedlabel-xaxis();
+  }
+
+  .#{$ct-class-label}.#{$ct-class-rotatedlabel-yaxis} {
+    @include ct-chart-rotatedlabel-yaxis();
   }
 
   .#{$ct-class-grid} {
