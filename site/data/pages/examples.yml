@@ -26,6 +26,13 @@ sections:
           id: example-rotatedlabels-bar-special
           classes: ct-golden-section
           intro: Special case on rotated labels, frontend developer needs to define margin and translation
+      - type: live-example
+        data:
+          title: Rotate bar chart
+          level: 4
+          id: example-rotate-bar-chart
+          classes: ct-golden-section
+          intro: A simple bar chart which rotates to horizontal on a certain screen width
   - title: Line chart examples
     level: 3
     items:
