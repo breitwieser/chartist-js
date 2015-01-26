@@ -544,7 +544,7 @@ var Chartist = {
                 width: width,
                 height: height,
                 style: 'overflow: visible;'
-            }, [options.classNames.label, options.classNames.horizontal].join(' '), supportsForeignObject);
+            }, classnames, supportsForeignObject);
         } else {
             console.log(chartRect.width());
             labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
@@ -553,7 +553,7 @@ var Chartist = {
                 width: Math.abs(width),
                 height: Math.abs(height),
                 style: 'overflow: visible;'
-            }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+            }, classnames, supportsForeignObject);
         }
 					
         eventEmitter.emit('draw', {
@@ -660,7 +660,7 @@ var Chartist = {
                 width: width,
                 height: height,
                 style: 'overflow: visible;'
-            }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+            }, classnames, supportsForeignObject);
         } else {
             labelElement = Chartist.createLabel(labels, '' + interpolatedValue, {
                 x: labelPosition.y,
@@ -668,7 +668,7 @@ var Chartist = {
                 width: Math.abs(10),
                 height: Math.abs(height),
                 style: 'overflow: visible;',
-            }, [options.classNames.label, options.classNames.vertical].join(' '), supportsForeignObject);
+            }, classnames , supportsForeignObject);
         }
 		
         eventEmitter.emit('draw', {
