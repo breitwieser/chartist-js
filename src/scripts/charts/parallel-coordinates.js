@@ -549,7 +549,7 @@
 
     var minValue = bounds[dimIndex].min;
     if(dimensions.minValues.length > dimIndex && dimensions.minValues[dimIndex] > minValue) {
-      value = dimensions.minValues[dimIndex];
+      minValue = dimensions.minValues[dimIndex];
     }
     translateY = Chartist.projectPoint(chartRect, bounds[dimIndex], [minValue], 0).y;
     var bottomRuler = grid.elem('path', {
@@ -566,6 +566,8 @@
       style: 'fill-opacity: 1',
       transform: "matrix(1 0 0 1 0 "+translateY+")"
     }, 'ct-ruler');
+
+    filterDataRecords(this.data, bounds);
 
     if(dimensions.minValues.length <= dimIndex) {
       dimensions.minValues.push(minValue);
