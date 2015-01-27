@@ -11,7 +11,7 @@
   var defaultOptions = {
     selectDisplayedDimContainer: undefined, //
     rulerSize: 10,
-    useRulers: false,
+    selectValuesOfInterest: false,
     axisX: {
       offset: 30,
       labelOffset: {
@@ -164,7 +164,7 @@
     //adjust chart rect, because labels should be drawn on top of the chart
     var chartRectY1Old = chartRect.y1,
       chartHeight = (Chartist.stripUnit(options.height) || this.svg.height());
-    chartRect.y1 = chartHeight - chartRect.y2 - (options.useRulers ? 15 : 0);
+    chartRect.y1 = chartHeight - chartRect.y2 - (options.selectValuesOfInterest ? 15 : 0);
     chartRect.y2 = chartHeight - chartRectY1Old;
     return chartRect;
   }
@@ -227,7 +227,7 @@
       });
     }
 
-    if(options.useRulers) {
+    if(options.selectValuesOfInterest) {
       filterDataRecords(this.data, bounds);
     }
   }
@@ -458,7 +458,7 @@
         height = options.axisX.offset,
         pos = chartRect.x1 + width * index;
 
-      if(options.useRulers) {
+      if(options.selectValuesOfInterest) {
         drawRuler.call(that, grid, chartRect, pos, bounds, dimensions.dimensionIndex[index]);
       }
 
@@ -520,10 +520,11 @@
   };
 
   function drawRuler(grid, chartRect, pos, bounds, dimIndex) {
-    var translateY = chartRect.y2;
-    if(dimensions.maxValues.length > dimIndex) {
-      translateY = Chartist.projectPoint(chartRect, bounds[dimIndex], [dimensions.maxValues[dimIndex]], 0).y;
+    var value = bounds[dimIndex].max;
+    if(dimensions.maxValues.length > dimIndex && dimensions.maxValues[dimIndex] < value) {
+      value = dimensions.maxValues[dimIndex];
     }
+    var translateY = Chartist.projectPoint(chartRect, bounds[dimIndex], [value], 0).y;
     var topRuler = grid.elem('path', {
       d: ['M',
           pos,
@@ -540,10 +541,16 @@
     }, 'ct-ruler');
 
     if(dimensions.maxValues.length <= dimIndex) {
-      dimensions.maxValues.push(Chartist.inverseProjectPoint(chartRect, bounds[dimIndex], {y:translateY}).y);
+      dimensions.maxValues.push(value);
+    } else{
+      dimensions.maxValues[dimIndex] = value;
     }
 
-    var minValue = dimensions.minValues.length > dimIndex ? dimensions.minValues[dimIndex] : bounds[dimIndex].min;
+
+    var minValue = bounds[dimIndex].min;
+    if(dimensions.minValues.length > dimIndex && dimensions.minValues[dimIndex] > minValue) {
+      value = dimensions.minValues[dimIndex];
+    }
     translateY = Chartist.projectPoint(chartRect, bounds[dimIndex], [minValue], 0).y;
     var bottomRuler = grid.elem('path', {
       d: ['M',
@@ -561,7 +568,9 @@
     }, 'ct-ruler');
 
     if(dimensions.minValues.length <= dimIndex) {
-      dimensions.minValues.push(bounds[dimIndex].min);
+      dimensions.minValues.push(minValue);
+    }else{
+      dimensions.minValues[dimIndex] =  minValue;
     }
 
     //make elements draggable

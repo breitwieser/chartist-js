@@ -13,19 +13,19 @@ var data = {
 var options = {
 	showMean: true,
   showHistogram: true,
-  useRulers: true,
+  selectValuesOfInterest: false,
   histogramPartition: 10
 };
 
 var responsiveOptions = [
-        ['screen and (max-width: 600px)', {
+        ['screen and (max-width: 40em)', {
             axisX: {
                 labelInterpolationFnc: function(value, index) {
                     return ["foo", "bla", "pc-var"].indexOf(value) != -1 ? value : null;
                 }
             }
         }],
-        ['screen and (min-width: 600px)', {
+        ['screen and (min-width: 40em)', {
             axisX: {
                 labelInterpolationFnc: function(value, index) {
                     return value;
