@@ -1,3 +1,22 @@
+#Extending chartist
+
+In a group of four we extended the responsive behaviour of chartist and introduced a new chart type for this library. Documentation and two screencasts demonstrating the features of parallel coordinates and vertical bar charts can be found in the `doc` folder.
+
+##Responsive Behaviour
+* Rotation of Axis Ticks Labels
+* Vertical Bar Charts
+
+##Parallel Coordinates
+
+* Parallel coordinates plot
+  * Highlight data record
+  * Display mean
+  * Display histogram
+  * Responsive behaviour
+* Interactive features
+  * Select displayed dimenensions
+  * Select values of interest
+
 # Big welcome by the Chartist Guy
 
 ![The Chartist Guy](https://raw.github.com/gionkunz/chartist-js/develop/site/images/chartist-guy.gif "The Chartist Guy")
