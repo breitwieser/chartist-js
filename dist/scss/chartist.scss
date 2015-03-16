@@ -38,6 +38,16 @@
   text-align: $ct-text-align;
 }
 
+@mixin ct-chart-rotatedlabel-xaxis() {
+  transform-origin: 50% 0%;
+  transform: rotate(-45deg);
+}
+
+@mixin ct-chart-rotatedlabel-yaxis() {
+  transform-origin: 100% 50%;
+  transform: rotate(-45deg);
+}
+
 @mixin ct-chart-grid($ct-grid-color: $ct-grid-color, $ct-grid-width: $ct-grid-width, $ct-grid-dasharray: $ct-grid-dasharray) {
   stroke: $ct-grid-color;
   stroke-width: $ct-grid-width;
@@ -61,6 +71,29 @@
   }
 }
 
+@mixin ct-chart-parallelCoordinates($ct-parallelCoordinates-line-width: ct-parallelCoordinates-line-width, $ct-parallelCoordinates-dasharray: ct-parallelCoordinates-dasharray) {
+  fill: none;
+  stroke-width: $ct-parallelCoordinates-line-width;
+
+  @if ($ct-parallelCoordinates-dasharray) {
+    stroke-dasharray: $ct-parallelCoordinates-dasharray;
+  }
+}
+
+@mixin ct-mean($ct-mean-line-width: $ct-mean-line-width, $ct-mean-stroke: $ct-mean-stroke) {
+  fill: none;
+  stroke-width: $ct-mean-line-width;
+  stroke: $ct-mean-stroke;
+}
+
+@mixin ct-histogram($ct-histogram-stroke: $ct-histogram-stroke, $ct-histogram-width: $ct-histogram-width, $ct-histogram-fill: $ct-histogram-fill) {
+  fill: $ct-histogram-fill;
+  fill-opacity: 0.2;
+  stroke: $ct-histogram-stroke;
+  stroke-width: $ct-histogram-width;
+  stroke-opacity: 0.3;
+}
+
 @mixin ct-chart-area($ct-area-opacity: $ct-area-opacity) {
   stroke: none;
   fill-opacity: $ct-area-opacity;
@@ -76,8 +109,14 @@
   stroke-width: $ct-donut-width;
 }
 
+@mixin ct-chart-mono-series($ct-mean-line-width: $ct-mean-line-width, $ct-mean-stroke: $ct-mean-stroke) {
+  fill: none;
+  stroke-width: $ct-mean-line-width;
+  stroke: $ct-mean-stroke;
+}
+
 @mixin ct-chart-series-color($color) {
-  .#{$ct-class-point}, .#{$ct-class-line}, .#{$ct-class-bar}, .#{$ct-class-slice}.#{$ct-class-donut} {
+  .#{$ct-class-point}, .#{$ct-class-line}, .#{$ct-class-parallelCoordinates}, .#{$ct-class-bar}, .#{$ct-class-slice}.#{$ct-class-donut} {
     stroke: $color;
   }
 
@@ -86,7 +125,7 @@
   }
 }
 
-@mixin ct-chart($ct-container-ratio: $ct-container-ratio, $ct-text-color: $ct-text-color, $ct-text-size: $ct-text-size, $ct-horizontal-text-align: $ct-horizontal-text-align, $ct-vertical-text-align: $ct-vertical-text-align, $ct-grid-color: $ct-grid-color, $ct-grid-width: $ct-grid-width, $ct-grid-dasharray: $ct-grid-dasharray, $ct-point-size: $ct-point-size, $ct-point-shape: $ct-point-shape, $ct-line-width: $ct-line-width, $ct-bar-width: $ct-bar-width, $ct-donut-width: $ct-donut-width, $ct-series-names: $ct-series-names, $ct-series-colors: $ct-series-colors) {
+@mixin ct-chart($ct-container-ratio: $ct-container-ratio, $ct-text-color: $ct-text-color, $ct-text-size: $ct-text-size, $ct-horizontal-text-align: $ct-horizontal-text-align, $ct-vertical-text-align: $ct-vertical-text-align, $ct-grid-color: $ct-grid-color, $ct-grid-width: $ct-grid-width, $ct-grid-dasharray: $ct-grid-dasharray, $ct-point-size: $ct-point-size, $ct-point-shape: $ct-point-shape, $ct-line-width: $ct-line-width, $ct-parallelCoordinates-line-width: $ct-parallelCoordinates-line-width, $ct-mean-line-width: $ct-mean-line-width, $ct-bar-width: $ct-bar-width, $ct-donut-width: $ct-donut-width, $ct-series-names: $ct-series-names, $ct-series-colors: $ct-series-colors) {
   .#{$ct-class-label} {
     @include ct-chart-label($ct-text-color, $ct-text-size);
   }
@@ -99,6 +138,14 @@
     @include ct-chart-label($ct-text-color, $ct-text-size, $ct-vertical-text-align);
   }
 
+  .#{$ct-class-label}.#{$ct-class-rotatedlabel-xaxis} {
+    @include ct-chart-rotatedlabel-xaxis();
+  }
+
+  .#{$ct-class-label}.#{$ct-class-rotatedlabel-yaxis} {
+    @include ct-chart-rotatedlabel-yaxis();
+  }
+
   .#{$ct-class-grid} {
     @include ct-chart-grid($ct-grid-color, $ct-grid-width, $ct-grid-dasharray);
   }
@@ -107,8 +154,24 @@
     @include ct-chart-point($ct-point-size, $ct-point-shape);
   }
 
+  .#{$ct-class-mono-series} {
+    @include ct-chart-mono-series($ct-series-mono-line-width, $ct-series-mono-color);
+  }
+
   .#{$ct-class-line} {
     @include ct-chart-line($ct-line-width);
+  }
+
+  .#{$ct-class-parallelCoordinates} {
+    @include ct-chart-parallelCoordinates($ct-parallelCoordinates-line-width);
+  }
+
+  .#{$ct-class-mean} {
+    @include ct-mean($ct-mean-line-width, $ct-mean-stroke);
+  }
+
+  .#{$ct-class-histogram} {
+    @include ct-histogram($ct-histogram-stroke, $ct-histogram-width, $ct-histogram-fill);
   }
 
   .#{$ct-class-area} {
@@ -148,4 +211,33 @@
       }
     }
   }
+}
+
+.ct-select-dimensions ul
+{
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.ct-select-dimensions ul li {
+  display: inline;
+  padding-right: 1em
+}
+
+.ct-ruler{
+  cursor: move;
+}
+
+.ct-unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.ct-series-mono:hover {
+  stroke: #f4c63d;
 }

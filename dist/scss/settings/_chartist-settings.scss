@@ -1,15 +1,20 @@
 // Scales for responsive SVG containers
-$ct-scales: ((1), (15/16), (8/9), (5/6), (4/5), (3/4), (2/3), (5/8), (1/1.618), (3/5), (9/16), (8/15), (1/2), (2/5), (3/8), (1/3), (1/4)) !default;
-$ct-scales-names: (ct-square, ct-minor-second, ct-major-second, ct-minor-third, ct-major-third, ct-perfect-fourth, ct-perfect-fifth, ct-minor-sixth, ct-golden-section, ct-major-sixth, ct-minor-seventh, ct-major-seventh, ct-octave, ct-major-tenth, ct-major-eleventh, ct-major-twelfth, ct-double-octave) !default;
+$ct-scales: ((1), (15/16), (8/9), (5/6), (4/5), (3/4), (2/3), (5/8), (1/1.618), (3/5), (9/16), (8/15), (1/2), (2/5), (3/8), (1/3), (1/4), (1.618/1)) !default;
+$ct-scales-names: (ct-square, ct-minor-second, ct-major-second, ct-minor-third, ct-major-third, ct-perfect-fourth, ct-perfect-fifth, ct-minor-sixth, ct-golden-section, ct-major-sixth, ct-minor-seventh, ct-major-seventh, ct-octave, ct-major-tenth, ct-major-eleventh, ct-major-twelfth, ct-double-octave, ct-golden-section-inverse) !default;
 
 // Class names to be used when generating CSS
 $ct-class-chart: ct-chart !default;
 $ct-class-chart-line: ct-chart-line !default;
 $ct-class-chart-bar: ct-chart-bar !default;
 $ct-class-chart-pie: ct-chart-pie !default;
+$ct-class-chart-parallelCoordinates: ct-chart-parallelCoordinates !default;
 $ct-class-label: ct-label !default;
 $ct-class-series: ct-series !default;
+$ct-class-mono-series: ct-series-mono !default;
 $ct-class-line: ct-line !default;
+$ct-class-parallelCoordinates: ct-parallelCoordinates !default;
+$ct-class-mean: ct-mean !default; 
+$ct-class-histogram: ct-histogram !default;
 $ct-class-point: ct-point !default;
 $ct-class-area: ct-area !default;
 $ct-class-bar: ct-bar !default;
@@ -18,6 +23,8 @@ $ct-class-donut: ct-donut !default;
 $ct-class-grid: ct-grid !default;
 $ct-class-vertical: ct-vertical !default;
 $ct-class-horizontal: ct-horizontal !default;
+$ct-class-rotatedlabel-xaxis: ct-rotatedlabels-xaxis !default;
+$ct-class-rotatedlabel-yaxis: ct-rotatedlabels-yaxis !default;
 
 // Container ratio
 $ct-container-ratio: (1/1.618) !default;
@@ -42,6 +49,29 @@ $ct-point-size: 10px !default;
 $ct-point-shape: round !default;
 // Area fill transparency between 0 and 1
 $ct-area-opacity: 0.1 !default;
+
+// parallel coordinates properties
+$ct-parallelCoordinates-line-width: 2px !default;
+$ct-parallelCoordinates-dasharray: false !default;
+$ct-point-size: 10px !default;
+// Line chart point, can be either round or square
+$ct-point-shape: round !default;
+// Area fill transparency between 0 and 1
+$ct-area-opacity: 0.1 !default;
+
+// Mean properties
+$ct-mean-stroke: #006400 !default;
+$ct-mean-line-width: 4px !default;
+
+// Histogram properties
+$ct-histogram-stroke:#000000 !default;
+$ct-histogram-width:2px !default;
+$ct-histogram-opacity:0.7 !default;
+$ct-histogram-fill:#A9A9A9 !default;
+
+// Mono series
+$ct-series-mono-color: #d70206 !default;
+$ct-series-mono-line-width: 2px !default;
 
 // Bar chart bar width
 $ct-bar-width: 10px !default;
